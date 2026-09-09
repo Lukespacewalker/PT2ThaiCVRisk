@@ -40,7 +40,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด (Thai CV Risk Score)
                 </h1>
                 <p class="header-subtitle" data-i18n="pageSubtitle">
-                    ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือดในระยะเวลา 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569
+                    ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือด 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) พร้อมข้อมูลประวัติการสูบบุหรี่และดื่มสุรา ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569
                 </p>
             </header>
 
@@ -50,18 +50,45 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     <!-- Mode Filter -->
                     <div class="filter-group">
                         <div class="filter-title" data-i18n="filterMode">
-                            โหมดข้อมูลการสูบบุหรี่
+                            โหมดข้อมูลการคำนวณความเสี่ยง
                         </div>
                         <div class="pill-list" id="mode-tabs">
-                            <div class="pill active" data-mode="baseline" data-i18n="modeBaseline">
-                                ข้อมูลพื้นฐาน (ไม่สูบทุกคน)
+                            <div class="pill active" data-mode="actual" data-i18n="modeActual">
+                                ข้อมูลจริง (Actual Lifestyle)
                             </div>
-                            <div class="pill" data-mode="simulated" data-i18n="modeSimulated">
-                                จำลองประชากร (ชายไทย ~35%)
+                            <div class="pill" data-mode="baseline" data-i18n="modeBaseline">
+                                สมมติไม่สูบทุกคน (If All Quit)
                             </div>
                             <div class="pill" data-mode="smoke_all" data-i18n="modeSmokeAll">
-                                สมมติว่าสูบทุกคน (What-if)
+                                สมมติว่าสูบทุกคน (What-if All Smoke)
                             </div>
+                            <div class="pill" data-mode="simulated" data-i18n="modeSimulated">
+                                จำลองประชากร (Simulated ~35%)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smoking Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterSmoke">
+                            ประวัติสูบบุหรี่
+                        </div>
+                        <div class="pill-list" id="smoke-tabs">
+                            <div class="pill active" data-smoke="ALL" data-i18n="all">ทั้งหมด</div>
+                            <div class="pill" data-smoke="1" data-i18n="smokeYes">สูบบุหรี่</div>
+                            <div class="pill" data-smoke="0" data-i18n="smokeNo">ไม่สูบ</div>
+                        </div>
+                    </div>
+
+                    <!-- Alcohol Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterAlc">
+                            ประวัติดื่มแอลกอฮอล์
+                        </div>
+                        <div class="pill-list" id="alc-tabs">
+                            <div class="pill active" data-alc="ALL" data-i18n="all">ทั้งหมด</div>
+                            <div class="pill" data-alc="1" data-i18n="alcYes">ดื่มแอลกอฮอล์</div>
+                            <div class="pill" data-alc="0" data-i18n="alcNo">ไม่ดื่ม</div>
                         </div>
                     </div>
 
@@ -119,7 +146,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                         เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)
                     </div>
                     <div class="threshold-note" data-i18n="kpiTotalNote">
-                        ข้อมูลตรวจสุขภาพประจำปี 2569 ครบถ้วน 100%
+                        ข้อมูลตรวจสุขภาพและประวัติพฤติกรรม ปี 2569
                     </div>
                 </div>
 
@@ -148,6 +175,34 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     </div>
                     <div class="threshold-note" data-i18n="kpiHighNote">
                         กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน
+                    </div>
+                </div>
+
+                <!-- Smoking Rate -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiSmokeTitle">
+                        อัตราการสูบบุหรี่
+                    </div>
+                    <div class="kpi-value" id="kpi-smoke-prop" style="color:#C85A17;">0.0%</div>
+                    <div class="kpi-label" id="kpi-smoke-count-label">
+                        0 คน
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiSmokeNote">
+                        เพิ่มแต้มคะแนนความเสี่ยง FullScore +0.42
+                    </div>
+                </div>
+
+                <!-- Alcohol Drinking Rate -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiAlcTitle">
+                        อัตราการดื่มสุรา
+                    </div>
+                    <div class="kpi-value" id="kpi-alc-prop" style="color:#E65100;">0.0%</div>
+                    <div class="kpi-label" id="kpi-alc-count-label">
+                        0 คน
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiAlcNote">
+                        ปัจจัยเสี่ยงต่อตับ ความดันโลหิต และไตรกลีเซอไรด์
                     </div>
                 </div>
 
@@ -184,16 +239,16 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="card" style="margin-bottom: 0;">
                     <div class="card-title" data-i18n="chartDistTitle">
-                        สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)
+                        การกระจายตัวของระดับความเสี่ยง (Risk Stratification)
                     </div>
-                    <div class="chart-container" id="riskDistChart" style="height: 420px;"></div>
+                    <div class="chart-container" id="riskDistChart" style="height: 380px;"></div>
                 </div>
 
                 <div class="card" style="margin-bottom: 0;">
                     <div class="card-title" data-i18n="chartScatterTitle">
-                        ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง
+                        ความสัมพันธ์ระหว่าง อายุ, ความดันตัวบน (SBP) และระดับความเสี่ยง
                     </div>
-                    <div class="chart-container" id="scatterChart" style="height: 420px;"></div>
+                    <div class="chart-container" id="scatterChart" style="height: 380px;"></div>
                 </div>
             </div>
 
@@ -217,12 +272,12 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             <!-- Detailed Table Section -->
             <div class="card">
                 <div class="card-title">
-                    <span data-i18n="tableTitle">รายชื่อและผลการประเมินรายบุคคล</span>
+                    <span data-i18n="tableTitle">รายชื่อและผลการประเมินรายบุคคล (Public Edition - ไม่แสดงชื่อจริง)</span>
                     <input
                         type="text"
                         id="search-input"
                         class="search-input"
-                        placeholder="ค้นหาชื่อหรือลำดับ..."
+                        placeholder="ค้นหาลำดับ, รหัส, จุดประจำการ..."
                         data-i18n-placeholder="searchPlaceholder"
                     />
                 </div>
@@ -231,16 +286,18 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                         <thead>
                             <tr>
                                 <th data-sort="id">ลำดับ ⇅</th>
-                                <th data-sort="name">ชื่อ-สกุล ⇅</th>
+                                <th data-sort="work_post">จุดประจำการ ⇅</th>
+                                <th data-sort="name">รหัสบุคคล ⇅</th>
                                 <th data-sort="age">อายุ ⇅</th>
+                                <th data-sort="smoking_actual">สูบบุหรี่ ⇅</th>
+                                <th data-sort="alcohol_actual">ดื่มสุรา ⇅</th>
                                 <th data-sort="sbp">ความดัน (SBP/DBP) ⇅</th>
                                 <th data-sort="bmi">BMI ⇅</th>
                                 <th data-sort="fbs">น้ำตาล FBS ⇅</th>
-                                <th data-sort="cholesterol">โคเลสเตอรอลรวม ⇅</th>
-                                <th data-sort="hdl">HDL-C ⇅</th>
-                                <th data-sort="ldl">LDL-C ⇅</th>
+                                <th data-sort="cholesterol">โคเลสเตอรอล ⇅</th>
                                 <th data-sort="thai_cv_risk">Thai CV Risk (%) ⇅</th>
                                 <th data-sort="risk_category">ระดับความเสี่ยง ⇅</th>
+                                <th>หากเลิกสูบ (%)</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
@@ -279,9 +336,9 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 </div>
 
                 <div class="data-caveat">
-                    <strong data-i18n="caveatTitle">หมายเหตุสำคัญเกี่ยวกับข้อมูลบุหรี่:</strong>
+                    <strong data-i18n="caveatTitle">ข้อมูลพฤติกรรมการสูบบุหรี่และดื่มสุรา:</strong>
                     <span data-i18n="caveatText">
-                        ในการคำนวณเบื้องต้น ได้กำหนดให้ตัวแปรการสูบบุหรี่ = 0 (ไม่สูบ) สำหรับทุกคนตามข้อมูลตั้งต้นที่อยู่ระหว่างรอแบบสอบถามพฤติกรรม หากต้องการดูผลกระทบเมื่อมีการสูบบุหรี่ สามารถสลับโหมด "จำลองประชากร" หรือ "สมมติว่าสูบทุกคน" ได้ที่แถบตัวกรองด้านบน
+                        เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้สำเร็จ 69 จาก 74 นาย คิดเป็น 93.2%) ทำให้การคำนวณ Thai CV Risk ในโหมด "ข้อมูลจริง" สะท้อนความเสี่ยงที่แท้จริงของผู้ปฏิบัติงานแต่ละรายได้อย่างแม่นยำ
                     </span>
                 </div>
             </div>
@@ -297,12 +354,19 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             const I18N = {
                 th: {
                     pageTitle: "แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด (Thai CV Risk Score)",
-                    pageSubtitle: "ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือดในระยะเวลา 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569",
+                    pageSubtitle: "ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือด 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) พร้อมข้อมูลประวัติการสูบบุหรี่และดื่มสุรา ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569",
                     goToCalculator: "ประเมินความเสี่ยงด้วยตนเอง →",
-                    filterMode: "โหมดข้อมูลการสูบบุหรี่",
-                    modeBaseline: "ข้อมูลพื้นฐาน (ไม่สูบทุกคน)",
-                    modeSimulated: "จำลองประชากร (ชายไทย ~35%)",
-                    modeSmokeAll: "สมมติว่าสูบทุกคน (What-if)",
+                    filterMode: "โหมดข้อมูลการคำนวณความเสี่ยง",
+                    modeActual: "ข้อมูลจริง (Actual Lifestyle)",
+                    modeBaseline: "สมมติไม่สูบทุกคน (If All Quit)",
+                    modeSmokeAll: "สมมติว่าสูบทุกคน (What-if All Smoke)",
+                    modeSimulated: "จำลองประชากร (Simulated ~35%)",
+                    filterSmoke: "ประวัติสูบบุหรี่",
+                    smokeYes: "สูบบุหรี่",
+                    smokeNo: "ไม่สูบ",
+                    filterAlc: "ประวัติดื่มแอลกอฮอล์",
+                    alcYes: "ดื่มแอลกอฮอล์",
+                    alcNo: "ไม่ดื่ม",
                     filterAge: "ช่วงอายุ",
                     all: "ทั้งหมด",
                     filterRisk: "ระดับความเสี่ยง",
@@ -316,27 +380,31 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     bpStage2: "ความดันสูง ระดับ 2",
                     kpiTotalTitle: "จำนวนเจ้าหน้าที่ที่ประเมิน",
                     kpiTotalLabel: "เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)",
-                    kpiTotalNote: "ข้อมูลตรวจสุขภาพประจำปี 2569 ครบถ้วน 100%",
+                    kpiTotalNote: "ข้อมูลตรวจสุขภาพและประวัติพฤติกรรม ปี 2569",
                     kpiMedianTitle: "มัธยฐานความเสี่ยง (Thai CV Risk)",
                     kpiMedianLabel: "โอกาสเกิดโรคหัวใจและหลอดเลือดใน 10 ปี",
                     kpiMedianNote: "เกณฑ์มาตรฐาน: ต่ำ (<10%), ปานกลาง (10-19%), สูง (≥20%)",
                     kpiHighTitle: "สัดส่วนกลุ่มเสี่ยงปานกลาง-สูง",
                     kpiHighNote: "กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน",
+                    kpiSmokeTitle: "อัตราการสูบบุหรี่",
+                    kpiSmokeNote: "เพิ่มแต้มคะแนนความเสี่ยง FullScore +0.42",
+                    kpiAlcTitle: "อัตราการดื่มสุรา",
+                    kpiAlcNote: "ปัจจัยเสี่ยงต่อตับ ความดันโลหิต และไตรกลีเซอไรด์",
                     kpiHTNTitle: "ความดันโลหิตสูง (HTN)",
                     kpiHTNNote: "ปัจจัยหลักที่มีน้ำหนักสูงในสมการ Thai CV Risk",
                     kpiDMTitle: "เบาหวานและเสี่ยงเบาหวาน",
                     kpiDMNote: "ภาวะเบาหวานเพิ่มแต้มความเสี่ยงในสมการ +0.70",
-                    chartDistTitle: "สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)",
-                    chartScatterTitle: "ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง",
+                    chartDistTitle: "การกระจายตัวของระดับความเสี่ยง (Risk Stratification)",
+                    chartScatterTitle: "ความสัมพันธ์ระหว่าง อายุ, ความดันตัวบน (SBP) และระดับความเสี่ยง",
                     chartBoxTitle: "การกระจายตัวของค่าความเสี่ยงจำแนกตามช่วงอายุ",
                     chartFactorsTitle: "สัดส่วนปัจจัยเสี่ยงและโรคร่วมสำคัญ",
-                    tableTitle: "รายชื่อและผลการประเมินรายบุคคล",
-                    searchPlaceholder: "ค้นหาชื่อหรือลำดับ...",
+                    tableTitle: "รายชื่อและผลการประเมินรายบุคคล (Public Edition - ไม่แสดงชื่อจริง)",
+                    searchPlaceholder: "ค้นหาลำดับ, รหัส, จุดประจำการ...",
                     methodologyTitle: "ระเบียบวิธีวิจัยและสูตรการประเมิน Thai CV Risk Score",
                     equationTitle: "สูตรการคำนวณ (กรณีมีผลโคเลสเตอรอลรวม)",
                     riskThresholdsTitle: "เกณฑ์การจัดกลุ่มความเสี่ยง 10 ปี",
-                    caveatTitle: "หมายเหตุสำคัญเกี่ยวกับข้อมูลบุหรี่:",
-                    caveatText: "ในการคำนวณเบื้องต้น ได้กำหนดให้ตัวแปรการสูบบุหรี่ = 0 (ไม่สูบ) สำหรับทุกคนตามข้อมูลตั้งต้นที่อยู่ระหว่างรอแบบสอบถามพฤติกรรม หากต้องการดูผลกระทบเมื่อมีการสูบบุหรี่ สามารถสลับโหมด \"จำลองประชากร\" หรือ \"สมมติว่าสูบทุกคน\" ได้ที่แถบตัวกรองด้านบน",
+                    caveatTitle: "ข้อมูลพฤติกรรมการสูบบุหรี่และดื่มสุรา:",
+                    caveatText: "เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้สำเร็จ 69 จาก 74 นาย คิดเป็น 93.2%) ทำให้การคำนวณ Thai CV Risk ในโหมด \"ข้อมูลจริง\" สะท้อนความเสี่ยงที่แท้จริงของผู้ปฏิบัติงานแต่ละรายได้อย่างแม่นยำ",
                     personUnit: "คน",
                     lowRiskLabel: "เสี่ยงต่ำ (<10%)",
                     intRiskLabel: "เสี่ยงปานกลาง (10-19.9%)",
@@ -345,46 +413,57 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 },
                 en: {
                     pageTitle: "Cardiovascular Risk Dashboard (Thai CV Risk Score)",
-                    pageSubtitle: "10-Year Cardiovascular Disease Risk Assessment (Thai CV Risk Score: Ramathibodi / EGAT) for Security Personnel (Year 2026)",
-                    goToCalculator: "Self-Assessment Calculator →",
-                    filterMode: "Smoking Status Mode",
-                    modeBaseline: "Baseline (All Non-smokers)",
-                    modeSimulated: "Simulated (Thai Male ~35%)",
-                    modeSmokeAll: "What-If (All Smokers)",
-                    filterAge: "Age Group",
+                    pageSubtitle: "10-Year Thai CV Risk Score (Ramathibodi / EGAT) with integrated smoking and alcohol lifestyle records for Security Personnel (2026)",
+                    goToCalculator: "Personal Risk Calculator →",
+                    filterMode: "Risk Calculation Mode",
+                    modeActual: "Actual Lifestyle Records",
+                    modeBaseline: "Baseline (If All Quit)",
+                    modeSmokeAll: "What-if All Smoke",
+                    modeSimulated: "Population Simulation (~35%)",
+                    filterSmoke: "Smoking History",
+                    smokeYes: "Smoker",
+                    smokeNo: "Non-smoker",
+                    filterAlc: "Alcohol History",
+                    alcYes: "Alcohol Drinker",
+                    alcNo: "Non-drinker",
+                    filterAge: "Age Range",
                     all: "All",
                     filterRisk: "Risk Category",
-                    riskLow: "Low Risk (<10%)",
+                    riskLow: "Low (<10%)",
                     riskInt: "Intermediate (10-19.9%)",
-                    riskHigh: "High Risk (≥20%)",
+                    riskHigh: "High (≥20%)",
                     filterBP: "Blood Pressure Stage",
                     bpNormal: "Normal BP",
                     bpPre: "Prehypertension",
                     bpStage1: "Stage 1 HTN",
                     bpStage2: "Stage 2 HTN",
-                    kpiTotalTitle: "Total Security Personnel",
+                    kpiTotalTitle: "Total Assessed",
                     kpiTotalLabel: "Security Guards (100% Male)",
-                    kpiTotalNote: "Annual Health Checkup 2026 (100% Complete)",
+                    kpiTotalNote: "2026 Complete Health Checkup & Lifestyle Data",
                     kpiMedianTitle: "Median Thai CV Risk",
-                    kpiMedianLabel: "10-Year CVD Probability",
-                    kpiMedianNote: "Stratum: Low (<10%), Intermediate (10-19%), High (≥20%)",
-                    kpiHighTitle: "Intermediate & High Risk Proportion",
-                    kpiHighNote: "Personnel needing focused lifestyle & clinical follow-up",
+                    kpiMedianLabel: "10-Year CVD Event Probability",
+                    kpiMedianNote: "Clinical standard: Low (<10%), Intermediate (10-19%), High (≥20%)",
+                    kpiHighTitle: "Intermediate & High Risk Ratio",
+                    kpiHighNote: "Personnel requiring active clinical intervention",
+                    kpiSmokeTitle: "Smoking Prevalence",
+                    kpiSmokeNote: "Adds +0.42 to FullScore equation",
+                    kpiAlcTitle: "Alcohol Prevalence",
+                    kpiAlcNote: "Risk factor for hepatic health, HTN, and hypertriglyceridemia",
                     kpiHTNTitle: "Hypertension (HTN)",
-                    kpiHTNNote: "Key major contributor in Thai CV Risk Equation",
+                    kpiHTNNote: "High weight predictor in Thai CV Risk model",
                     kpiDMTitle: "Diabetes & Prediabetes",
-                    kpiDMNote: "Diabetes status adds +0.70 log-hazard in equation",
-                    chartDistTitle: "Thai CV Risk Stratification Distribution",
-                    chartScatterTitle: "Relationship: Age, Systolic BP & Cardiovascular Risk",
-                    chartBoxTitle: "Risk Score Distribution Across Age Groups",
-                    chartFactorsTitle: "Prevalence of Clinical Comorbidities",
-                    tableTitle: "Individual Health & Risk Assessment Roster",
-                    searchPlaceholder: "Search name or ID...",
+                    kpiDMNote: "Diabetes contributes +0.70 to risk score",
+                    chartDistTitle: "Risk Stratification Distribution",
+                    chartScatterTitle: "Correlation: Age, Systolic BP, and Thai CV Risk",
+                    chartBoxTitle: "Thai CV Risk Distribution by Age Group",
+                    chartFactorsTitle: "Prevalence of Clinical Risk Factors & Lifestyle",
+                    tableTitle: "Individual Health Profiles (Public Edition - Anonymized)",
+                    searchPlaceholder: "Search ID, Code, Post...",
                     methodologyTitle: "Methodology & Thai CV Risk Score Equation",
-                    equationTitle: "Formula (With Total Cholesterol)",
-                    riskThresholdsTitle: "10-Year Clinical Risk Categories",
-                    caveatTitle: "Important Note on Smoking Status:",
-                    caveatText: "Baseline calculation assumes all personnel are currently non-smokers (Smoking = 0) pending verified behavioural survey data. To explore potential impacts, toggle 'Simulated' or 'What-If' smoking modes above.",
+                    equationTitle: "Score Equation (Total Cholesterol model)",
+                    riskThresholdsTitle: "10-Year Risk Stratification Criteria",
+                    caveatTitle: "Lifestyle & Smoking Data Integration:",
+                    caveatText: "Directly integrated with the official 2026 lifestyle survey (69 of 74 guards matched, 93.2% match rate). The default 'Actual Lifestyle' mode reflects true individual smoking and alcohol statuses.",
                     personUnit: "guards",
                     lowRiskLabel: "Low Risk (<10%)",
                     intRiskLabel: "Intermediate Risk (10-19.9%)",
@@ -393,20 +472,27 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 }
             };
 
+            // Dashboard State
             let currentLang = "th";
-            let currentMode = "baseline"; // 'baseline' | 'simulated' | 'smoke_all'
+            let currentMode = "actual"; // Default: Actual lifestyle data!
             let selectedAge = "ALL";
             let selectedRisk = "ALL";
             let selectedBP = "ALL";
+            let selectedSmoke = "ALL";
+            let selectedAlc = "ALL";
             let searchQuery = "";
             let sortColumn = "id";
             let sortAsc = true;
 
             function getEffectiveRisk(row, mode) {
-                if (mode === "simulated") {
-                    return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
+                if (mode === "actual") {
+                    return row.thai_cv_risk; // already calculated with actual smoking
+                } else if (mode === "baseline") {
+                    return row.thai_cv_risk_baseline;
                 } else if (mode === "smoke_all") {
-                    return row.thai_cv_risk_if_smoke ?? row.thai_cv_risk;
+                    return row.thai_cv_risk_if_smoke;
+                } else if (mode === "simulated") {
+                    return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
                 }
                 return row.thai_cv_risk;
             }
@@ -422,7 +508,6 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             function filterData() {
                 return window.DASHBOARD_DATA.filter(row => {
                     const effRisk = getEffectiveRisk(row, currentMode);
-                    const effCat = getEffectiveCategory(effRisk);
 
                     // Age Filter
                     if (selectedAge !== "ALL" && row.age_group !== selectedAge) return false;
@@ -437,12 +522,19 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     // BP Filter
                     if (selectedBP !== "ALL" && row.bp_stage !== selectedBP) return false;
 
+                    // Smoking Filter
+                    if (selectedSmoke !== "ALL" && String(row.smoking_actual) !== selectedSmoke) return false;
+
+                    // Alcohol Filter
+                    if (selectedAlc !== "ALL" && String(row.alcohol_actual) !== selectedAlc) return false;
+
                     // Search Query
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
                         const matchName = (row.name || "").toLowerCase().includes(q);
+                        const matchPost = (row.work_post || "").toLowerCase().includes(q);
                         const matchId = String(row.id).includes(q);
-                        if (!matchName && !matchId) return false;
+                        if (!matchName && !matchPost && !matchId) return false;
                     }
 
                     return true;
@@ -457,6 +549,10 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     document.getElementById("kpi-median").innerText = "0.0%";
                     document.getElementById("kpi-high-prop").innerText = "0.0%";
                     document.getElementById("kpi-high-count-label").innerText = "0 / 0";
+                    document.getElementById("kpi-smoke-prop").innerText = "0.0%";
+                    document.getElementById("kpi-smoke-count-label").innerText = "0 คน";
+                    document.getElementById("kpi-alc-prop").innerText = "0.0%";
+                    document.getElementById("kpi-alc-count-label").innerText = "0 คน";
                     document.getElementById("kpi-htn-prop").innerText = "0.0%";
                     document.getElementById("kpi-htn-count-label").innerText = "0 / 0";
                     document.getElementById("kpi-dm-prop").innerText = "0.0%";
@@ -476,6 +572,18 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 document.getElementById("kpi-high-prop").innerText = `${highRiskProp}%`;
                 document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${total} ${I18N[currentLang].personUnit}`;
 
+                // Smoking Prevalence
+                const smokeCount = filtered.filter(r => r.smoking_actual === 1).length;
+                const smokeProp = ((smokeCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-smoke-prop").innerText = `${smokeProp}%`;
+                document.getElementById("kpi-smoke-count-label").innerText = `${smokeCount} / ${total} ${I18N[currentLang].personUnit}`;
+
+                // Alcohol Prevalence
+                const alcCount = filtered.filter(r => r.alcohol_actual === 1).length;
+                const alcProp = ((alcCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-alc-prop").innerText = `${alcProp}%`;
+                document.getElementById("kpi-alc-count-label").innerText = `${alcCount} / ${total} ${I18N[currentLang].personUnit}`;
+
                 // Hypertension (SBP >= 140 or DBP >= 90)
                 const htnCount = filtered.filter(r => (r.sbp >= 140 || r.dbp >= 90)).length;
                 const htnProp = ((htnCount / total) * 100).toFixed(1);
@@ -493,7 +601,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             function renderCharts(filtered) {
                 const total = filtered.length;
 
-                // 1. Risk Stratification Bar / Donut
+                // 1. Risk Stratification Bar
                 const catCounts = {
                     "Low Risk (<10%)": 0,
                     "Intermediate Risk (10-19.9%)": 0,
@@ -543,7 +651,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 const scatterData = [{
                     x: filtered.map(r => r.age),
                     y: filtered.map(r => r.sbp),
-                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
+                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>บุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
                     mode: 'markers',
                     type: 'scatter',
                     marker: {
@@ -551,12 +659,17 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                         color: filtered.map(r => getEffectiveRisk(r, currentMode)),
                         colorscale: [
                             [0.0, '#2E7D32'],
-                            [0.35, '#E6A23C'],
-                            [0.7, '#E65100'],
-                            [1.0, '#C62828']
+                            [0.2, '#8BC34A'],
+                            [0.4, '#FFEB3B'],
+                            [0.6, '#FF9800'],
+                            [0.8, '#F44336'],
+                            [1.0, '#B71C1C']
                         ],
-                        showscale: true,
-                        colorbar: { title: 'Risk %', thickness: 14 },
+                        colorbar: {
+                            title: 'Risk %',
+                            thickness: 14,
+                            len: 0.8
+                        },
                         line: { color: '#2A2A2A', width: 1.5 }
                     },
                     hoverinfo: 'text'
@@ -566,7 +679,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     font: { family: 'Outfit, Inter, sans-serif' },
                     paper_bgcolor: 'transparent',
                     plot_bgcolor: 'transparent',
-                    margin: { t: 30, r: 20, l: 50, b: 50 },
+                    margin: { t: 30, r: 40, l: 50, b: 50 },
                     xaxis: { title: currentLang === 'th' ? 'อายุ (ปี)' : 'Age (Years)', gridcolor: '#e0ded8' },
                     yaxis: { title: currentLang === 'th' ? 'ความดันโลหิตตัวบน SBP (mmHg)' : 'Systolic BP (mmHg)', gridcolor: '#e0ded8' }
                 };
@@ -597,10 +710,12 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 };
                 Plotly.react('boxPlotChart', boxTraces, boxLayout, { responsive: true, displayModeBar: false });
 
-                // 4. Clinical Comorbidities Horizontal Bar
+                // 4. Clinical & Lifestyle Factors Horizontal Bar
                 const factors = [
                     { label: currentLang === 'th' ? 'โคเลสเตอรอลสูง (≥200)' : 'High Chol (≥200)', count: filtered.filter(r => r.cholesterol >= 200).length },
                     { label: currentLang === 'th' ? 'ความดันสูง (≥140/90)' : 'HTN (≥140/90)', count: filtered.filter(r => r.sbp >= 140 || r.dbp >= 90).length },
+                    { label: currentLang === 'th' ? 'ดื่มแอลกอฮอล์' : 'Drink Alcohol', count: filtered.filter(r => r.alcohol_actual === 1).length },
+                    { label: currentLang === 'th' ? 'สูบบุหรี่' : 'Smoke Cigarette', count: filtered.filter(r => r.smoking_actual === 1).length },
                     { label: currentLang === 'th' ? 'ไตรกลีเซอไรด์สูง (≥150)' : 'High TG (≥150)', count: filtered.filter(r => r.triglyceride >= 150).length },
                     { label: currentLang === 'th' ? 'น้ำตาลสูง (FBS ≥100)' : 'High FBS (≥100)', count: filtered.filter(r => r.fbs >= 100).length },
                     { label: currentLang === 'th' ? 'ดัชนีมวลกายเกิน (BMI ≥25)' : 'Obese (BMI ≥25)', count: filtered.filter(r => r.bmi >= 25).length },
@@ -622,7 +737,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     font: { family: 'Outfit, Inter, sans-serif' },
                     paper_bgcolor: 'transparent',
                     plot_bgcolor: 'transparent',
-                    margin: { t: 30, r: 20, l: 150, b: 40 },
+                    margin: { t: 30, r: 20, l: 160, b: 40 },
                     xaxis: { title: '%', range: [0, 100], gridcolor: '#e0ded8' }
                 };
                 Plotly.react('factorsBarChart', factorsData, factorsLayout, { responsive: true, displayModeBar: false });
@@ -669,19 +784,37 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                         catLabel = I18N[currentLang].intRiskLabel;
                     }
 
+                    const smokeBadge = row.smoking_actual === 1 
+                        ? '<span class="badge badge-smoke">สูบบุหรี่</span>' 
+                        : (row.smoking_survey_found ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                    const alcBadge = row.alcohol_actual === 1 
+                        ? '<span class="badge badge-drink">ดื่มแอลกอฮอล์</span>' 
+                        : (row.smoking_survey_found ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                    let quitDiffHtml = "-";
+                    if (row.smoking_actual === 1 && row.thai_cv_risk_baseline !== null) {
+                        const diff = (row.thai_cv_risk - row.thai_cv_risk_baseline).toFixed(2);
+                        quitDiffHtml = `<span style="color:#00695C; font-weight:bold;">${row.thai_cv_risk_baseline}%</span> <span style="font-size:0.75rem; color:#D84315;">(-${diff}%)</span>`;
+                    } else if (row.smoking_actual === 0) {
+                        quitDiffHtml = `<span style="color:#888; font-size:0.8rem;">ไม่สูบ</span>`;
+                    }
+
                     return `
                         <tr>
                             <td><strong>${row.id}</strong></td>
-                            <td>${row.name}</td>
+                            <td><span class="badge badge-bv">${row.work_post || '-'}</span></td>
+                            <td><strong>${row.name}</strong></td>
                             <td>${row.age}</td>
+                            <td>${smokeBadge}</td>
+                            <td>${alcBadge}</td>
                             <td>${row.sbp} / ${row.dbp} <span style="font-size:0.78rem; color:#666;">(${row.bp_stage})</span></td>
                             <td>${row.bmi ? row.bmi.toFixed(1) : '-'}</td>
                             <td>${row.fbs} ${row.fbs >= 126 ? '<span style="color:#B71C1C; font-weight:bold;">(DM)</span>' : ''}</td>
                             <td>${row.cholesterol}</td>
-                            <td>${row.hdl}</td>
-                            <td>${row.ldl}</td>
-                            <td><strong style="font-size:1.05rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
+                            <td><strong style="font-size:1.1rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
                             <td><span class="badge ${badgeClass}">${catLabel}</span></td>
+                            <td>${quitDiffHtml}</td>
                         </tr>
                     `;
                 }).join("");
@@ -734,6 +867,26 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     });
                 });
 
+                // Smoke Tabs
+                document.querySelectorAll("#smoke-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#smoke-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedSmoke = pill.getAttribute("data-smoke");
+                        refreshDashboard();
+                    });
+                });
+
+                // Alcohol Tabs
+                document.querySelectorAll("#alc-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#alc-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedAlc = pill.getAttribute("data-alc");
+                        refreshDashboard();
+                    });
+                });
+
                 // Age Tabs
                 document.querySelectorAll("#age-tabs .pill").forEach(pill => {
                     pill.addEventListener("click", () => {
@@ -764,17 +917,17 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     });
                 });
 
-                // Search input
+                // Search Input
                 const searchEl = document.getElementById("search-input");
                 if (searchEl) {
-                    searchEl.addEventListener("input", (e) => {
+                    searchEl.addEventListener("input", e => {
                         searchQuery = e.target.value.trim();
                         refreshDashboard();
                     });
                 }
 
-                // Table sorting
-                document.querySelectorAll("#guards-table th[data-sort]").forEach(th => {
+                // Table Sorting Headers
+                document.querySelectorAll(".data-table th[data-sort]").forEach(th => {
                     th.addEventListener("click", () => {
                         const col = th.getAttribute("data-sort");
                         if (sortColumn === col) {
@@ -783,7 +936,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                             sortColumn = col;
                             sortAsc = true;
                         }
-                        refreshDashboard();
+                        renderTable(filterData());
                     });
                 });
 

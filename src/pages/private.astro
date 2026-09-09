@@ -16,7 +16,6 @@ try {
         guardsData = privateModule.default;
     }
 } catch (e) {
-    // Fallback to public data
     guardsData = publicData;
 }
 
@@ -65,16 +64,12 @@ const totalCount = guardsData.length;
                     <a href="/calculator" class="nav-button">
                         <span>ประเมินความเสี่ยงด้วยตนเอง →</span>
                     </a>
-                    <div class="language-switcher" aria-label="Language selector">
-                        <button class="language-button active" type="button" data-language="th">ไทย</button>
-                        <button class="language-button" type="button" data-language="en">EN</button>
-                    </div>
                 </div>
                 <h1>
-                    แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด [ฉบับแสดงรายชื่อ]
+                    แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด [ฉบับแสดงรายชื่อจริง]
                 </h1>
                 <p class="header-subtitle">
-                    รายงานผลการประเมินความเสี่ยงโรคหัวใจและหลอดเลือด 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) รายบุคคลของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569
+                    รายงานผลการประเมินความเสี่ยงโรคหัวใจและหลอดเลือด 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) พร้อมประวัติสูบบุหรี่และดื่มสุรา รายบุคคลของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569
                 </p>
             </header>
 
@@ -84,18 +79,45 @@ const totalCount = guardsData.length;
                     <!-- Mode Filter -->
                     <div class="filter-group">
                         <div class="filter-title">
-                            โหมดข้อมูลการสูบบุหรี่
+                            โหมดข้อมูลการคำนวณความเสี่ยง
                         </div>
                         <div class="pill-list" id="mode-tabs">
-                            <div class="pill active" data-mode="baseline">
-                                ข้อมูลพื้นฐาน (ไม่สูบทุกคน)
+                            <div class="pill active" data-mode="actual">
+                                ข้อมูลจริง (Actual Lifestyle)
                             </div>
-                            <div class="pill" data-mode="simulated">
-                                จำลองประชากร (ชายไทย ~35%)
+                            <div class="pill" data-mode="baseline">
+                                สมมติไม่สูบทุกคน (If All Quit)
                             </div>
                             <div class="pill" data-mode="smoke_all">
-                                สมมติว่าสูบทุกคน (What-if)
+                                สมมติว่าสูบทุกคน (What-if All Smoke)
                             </div>
+                            <div class="pill" data-mode="simulated">
+                                จำลองประชากร (Simulated ~35%)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smoking Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title">
+                            ประวัติสูบบุหรี่
+                        </div>
+                        <div class="pill-list" id="smoke-tabs">
+                            <div class="pill active" data-smoke="ALL">ทั้งหมด</div>
+                            <div class="pill" data-smoke="1">สูบบุหรี่</div>
+                            <div class="pill" data-smoke="0">ไม่สูบ</div>
+                        </div>
+                    </div>
+
+                    <!-- Alcohol Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title">
+                            ประวัติดื่มแอลกอฮอล์
+                        </div>
+                        <div class="pill-list" id="alc-tabs">
+                            <div class="pill active" data-alc="ALL">ทั้งหมด</div>
+                            <div class="pill" data-alc="1">ดื่มแอลกอฮอล์</div>
+                            <div class="pill" data-alc="0">ไม่ดื่ม</div>
                         </div>
                     </div>
 
@@ -145,101 +167,83 @@ const totalCount = guardsData.length;
             <div class="grid">
                 <!-- Total Assessed -->
                 <div class="card">
-                    <div class="card-title">
-                        จำนวนเจ้าหน้าที่ที่ประเมิน
-                    </div>
+                    <div class="card-title">จำนวนพนักงานที่ประเมิน</div>
                     <div class="kpi-value" id="kpi-total">{totalCount}</div>
-                    <div class="kpi-label">
-                        เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)
-                    </div>
-                    <div class="threshold-note">
-                        ข้อมูลตรวจสุขภาพประจำปี 2569 ครบถ้วน 100%
-                    </div>
+                    <div class="kpi-label">เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)</div>
+                    <div class="threshold-note">ข้อมูลตรวจสุขภาพและประวัติพฤติกรรม ปี 2569</div>
                 </div>
 
                 <!-- Median Thai CV Risk -->
                 <div class="card">
-                    <div class="card-title">
-                        มัธยฐานความเสี่ยง (Thai CV Risk)
-                    </div>
+                    <div class="card-title">มัธยฐานความเสี่ยง (Thai CV Risk)</div>
                     <div class="kpi-value" id="kpi-median">0.0%</div>
-                    <div class="kpi-label">
-                        โอกาสเกิดโรคหัวใจและหลอดเลือดใน 10 ปี
-                    </div>
-                    <div class="threshold-note">
-                        เกณฑ์มาตรฐาน: ต่ำ (&lt;10%), ปานกลาง (10-19%), สูง (&ge;20%)
-                    </div>
+                    <div class="kpi-label">โอกาสเกิดโรคหัวใจและหลอดเลือดใน 10 ปี</div>
+                    <div class="threshold-note">เกณฑ์มาตรฐาน: ต่ำ (&lt;10%), ปานกลาง (10-19%), สูง (&ge;20%)</div>
                 </div>
 
                 <!-- High & Intermediate Risk Proportion -->
                 <div class="card">
-                    <div class="card-title">
-                        สัดส่วนกลุ่มเสี่ยงปานกลาง-สูง
-                    </div>
+                    <div class="card-title">สัดส่วนกลุ่มเสี่ยงปานกลาง-สูง</div>
                     <div class="kpi-value" id="kpi-high-prop">0.0%</div>
-                    <div class="kpi-label" id="kpi-high-count-label">
-                        0 จาก 0 คน
-                    </div>
-                    <div class="threshold-note">
-                        กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน
-                    </div>
+                    <div class="kpi-label" id="kpi-high-count-label">0 จาก 0 คน</div>
+                    <div class="threshold-note">กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน</div>
+                </div>
+
+                <!-- Smoking Rate -->
+                <div class="card">
+                    <div class="card-title">อัตราการสูบบุหรี่</div>
+                    <div class="kpi-value" id="kpi-smoke-prop" style="color:#C85A17;">0.0%</div>
+                    <div class="kpi-label" id="kpi-smoke-count-label">0 คน</div>
+                    <div class="threshold-note">เพิ่มแต้มคะแนนความเสี่ยง FullScore +0.42</div>
+                </div>
+
+                <!-- Alcohol Drinking Rate -->
+                <div class="card">
+                    <div class="card-title">อัตราการดื่มสุรา</div>
+                    <div class="kpi-value" id="kpi-alc-prop" style="color:#E65100;">0.0%</div>
+                    <div class="kpi-label" id="kpi-alc-count-label">0 คน</div>
+                    <div class="threshold-note">ปัจจัยเสี่ยงต่อตับ ความดันโลหิต และไตรกลีเซอไรด์</div>
                 </div>
 
                 <!-- Hypertension Prevalence -->
                 <div class="card">
-                    <div class="card-title">
-                        ความดันโลหิตสูง (HTN)
-                    </div>
+                    <div class="card-title">ความดันโลหิตสูง (HTN)</div>
                     <div class="kpi-value" id="kpi-htn-prop">0.0%</div>
-                    <div class="kpi-label" id="kpi-htn-count-label">
-                        SBP &ge; 140 หรือ DBP &ge; 90 mmHg
-                    </div>
-                    <div class="threshold-note">
-                        ปัจจัยหลักที่มีน้ำหนักสูงในสมการ Thai CV Risk
-                    </div>
+                    <div class="kpi-label" id="kpi-htn-count-label">SBP &ge; 140 หรือ DBP &ge; 90 mmHg</div>
+                    <div class="threshold-note">ปัจจัยหลักที่มีน้ำหนักสูงในสมการ Thai CV Risk</div>
                 </div>
 
                 <!-- Diabetes Prevalence -->
                 <div class="card">
-                    <div class="card-title">
-                        เบาหวานและเสี่ยงเบาหวาน
-                    </div>
+                    <div class="card-title">เบาหวานและเสี่ยงเบาหวาน</div>
                     <div class="kpi-value" id="kpi-dm-prop">0.0%</div>
-                    <div class="kpi-label" id="kpi-dm-count-label">
-                        FBS &ge; 100 mg/dL (เบาหวาน &ge; 126)
-                    </div>
-                    <div class="threshold-note">
-                        ภาวะเบาหวานเพิ่มแต้มความเสี่ยงในสมการ +0.70
-                    </div>
+                    <div class="kpi-label" id="kpi-dm-count-label">FBS &ge; 100 mg/dL</div>
+                    <div class="threshold-note">ภาวะเบาหวานเพิ่มแต้มความเสี่ยงในสมการ +0.70</div>
                 </div>
             </div>
 
             <!-- Charts Row 1: Distribution & Scatter -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="card" style="margin-bottom: 0;">
-                    <div class="card-title">
-                        สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)
-                    </div>
-                    <div class="chart-container" id="riskDistChart" style="height: 420px;"></div>
+                    <div class="card-title">สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)</div>
+                    <div class="chart-container" id="riskDistChart" style="height: 400px;"></div>
                 </div>
 
                 <div class="card" style="margin-bottom: 0;">
-                    <div class="card-title">
-                        ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง
-                    </div>
-                    <div class="chart-container" id="scatterChart" style="height: 420px;"></div>
+                    <div class="card-title">ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง</div>
+                    <div class="chart-container" id="scatterChart" style="height: 400px;"></div>
                 </div>
             </div>
 
             <!-- Detailed Table Section (With Real Names) -->
             <div class="card">
                 <div class="card-title">
-                    <span>รายชื่อพนักงานและผลการประเมินรายบุคคล (แสดงชื่อจริง)</span>
+                    <span>รายชื่อพนักงาน ข้อมูลตรวจสุขภาพ และประวัติเสี่ยงรายบุคคล (แสดงชื่อจริง)</span>
                     <input
                         type="text"
                         id="search-input"
                         class="search-input"
-                        placeholder="ค้นหาชื่อหรือลำดับ..."
+                        placeholder="ค้นหาชื่อ, นามสกุล, หรือจุดประจำการ..."
                     />
                 </div>
                 <div class="table-wrap">
@@ -247,16 +251,18 @@ const totalCount = guardsData.length;
                         <thead>
                             <tr>
                                 <th data-sort="id">ลำดับ ⇅</th>
+                                <th data-sort="work_post">จุดประจำการ ⇅</th>
                                 <th data-sort="name">ชื่อ-สกุล (จริง) ⇅</th>
                                 <th data-sort="age">อายุ ⇅</th>
+                                <th data-sort="smoking_actual">สูบบุหรี่ ⇅</th>
+                                <th data-sort="alcohol_actual">ดื่มสุรา ⇅</th>
                                 <th data-sort="sbp">ความดัน (SBP/DBP) ⇅</th>
                                 <th data-sort="bmi">BMI ⇅</th>
                                 <th data-sort="fbs">น้ำตาล FBS ⇅</th>
-                                <th data-sort="cholesterol">โคเลสเตอรอลรวม ⇅</th>
-                                <th data-sort="hdl">HDL-C ⇅</th>
-                                <th data-sort="ldl">LDL-C ⇅</th>
+                                <th data-sort="cholesterol">โคเลสเตอรอล ⇅</th>
                                 <th data-sort="thai_cv_risk">Thai CV Risk (%) ⇅</th>
                                 <th data-sort="risk_category">ระดับความเสี่ยง ⇅</th>
+                                <th>หากเลิกสูบ (%)</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
@@ -267,22 +273,32 @@ const totalCount = guardsData.length;
             </div>
         </div>
 
+        <!-- Inline Data Injection & Interactive Dashboard Script -->
         <script is:inline define:vars={{ rawData: guardsData }}>
             window.DASHBOARD_DATA = rawData;
         </script>
 
         <script is:inline>
-            let currentMode = "baseline";
+            let currentMode = "actual"; // Default: Actual lifestyle data!
             let selectedAge = "ALL";
             let selectedRisk = "ALL";
             let selectedBP = "ALL";
+            let selectedSmoke = "ALL";
+            let selectedAlc = "ALL";
             let searchQuery = "";
             let sortColumn = "id";
             let sortAsc = true;
 
             function getEffectiveRisk(row, mode) {
-                if (mode === "simulated") return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
-                if (mode === "smoke_all") return row.thai_cv_risk_if_smoke ?? row.thai_cv_risk;
+                if (mode === "actual") {
+                    return row.thai_cv_risk;
+                } else if (mode === "baseline") {
+                    return row.thai_cv_risk_baseline;
+                } else if (mode === "smoke_all") {
+                    return row.thai_cv_risk_if_smoke;
+                } else if (mode === "simulated") {
+                    return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
+                }
                 return row.thai_cv_risk;
             }
 
@@ -297,17 +313,27 @@ const totalCount = guardsData.length;
             function filterData() {
                 return window.DASHBOARD_DATA.filter(row => {
                     const effRisk = getEffectiveRisk(row, currentMode);
+
                     if (selectedAge !== "ALL" && row.age_group !== selectedAge) return false;
+
                     if (selectedRisk !== "ALL") {
                         if (selectedRisk === "Low Risk (<10%)" && effRisk >= 10.0) return false;
                         if (selectedRisk === "Intermediate Risk (10-19.9%)" && (effRisk < 10.0 || effRisk >= 20.0)) return false;
                         if (selectedRisk === "High Risk (20-29.9%)" && effRisk < 20.0) return false;
                     }
+
                     if (selectedBP !== "ALL" && row.bp_stage !== selectedBP) return false;
+                    if (selectedSmoke !== "ALL" && String(row.smoking_actual) !== selectedSmoke) return false;
+                    if (selectedAlc !== "ALL" && String(row.alcohol_actual) !== selectedAlc) return false;
+
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
-                        if (!row.name.toLowerCase().includes(q) && !String(row.id).includes(q)) return false;
+                        const matchName = (row.name || "").toLowerCase().includes(q);
+                        const matchPost = (row.work_post || "").toLowerCase().includes(q);
+                        const matchId = String(row.id).includes(q);
+                        if (!matchName && !matchPost && !matchId) return false;
                     }
+
                     return true;
                 });
             }
@@ -320,6 +346,10 @@ const totalCount = guardsData.length;
                     document.getElementById("kpi-median").innerText = "0.0%";
                     document.getElementById("kpi-high-prop").innerText = "0.0%";
                     document.getElementById("kpi-high-count-label").innerText = "0 / 0";
+                    document.getElementById("kpi-smoke-prop").innerText = "0.0%";
+                    document.getElementById("kpi-smoke-count-label").innerText = "0 คน";
+                    document.getElementById("kpi-alc-prop").innerText = "0.0%";
+                    document.getElementById("kpi-alc-count-label").innerText = "0 คน";
                     document.getElementById("kpi-htn-prop").innerText = "0.0%";
                     document.getElementById("kpi-htn-count-label").innerText = "0 / 0";
                     document.getElementById("kpi-dm-prop").innerText = "0.0%";
@@ -327,7 +357,7 @@ const totalCount = guardsData.length;
                     return;
                 }
 
-                const risks = filtered.map(r => getEffectiveRisk(r, currentMode)).sort((a, b) => a - b);
+                const risks = filtered.map(r => getEffectiveRisk(r, currentMode)).filter(v => v !== null).sort((a, b) => a - b);
                 const median = risks.length % 2 === 0
                     ? ((risks[risks.length / 2 - 1] + risks[risks.length / 2]) / 2).toFixed(2)
                     : risks[Math.floor(risks.length / 2)].toFixed(2);
@@ -338,10 +368,20 @@ const totalCount = guardsData.length;
                 document.getElementById("kpi-high-prop").innerText = `${highRiskProp}%`;
                 document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${total} คน`;
 
+                const smokeCount = filtered.filter(r => r.smoking_actual === 1).length;
+                const smokeProp = ((smokeCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-smoke-prop").innerText = `${smokeProp}%`;
+                document.getElementById("kpi-smoke-count-label").innerText = `${smokeCount} / ${total} คน`;
+
+                const alcCount = filtered.filter(r => r.alcohol_actual === 1).length;
+                const alcProp = ((alcCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-alc-prop").innerText = `${alcProp}%`;
+                document.getElementById("kpi-alc-count-label").innerText = `${alcCount} / ${total} คน`;
+
                 const htnCount = filtered.filter(r => (r.sbp >= 140 || r.dbp >= 90)).length;
                 const htnProp = ((htnCount / total) * 100).toFixed(1);
                 document.getElementById("kpi-htn-prop").innerText = `${htnProp}%`;
-                document.getElementById("kpi-htn-count-label").innerText = `${htnCount} / ${total} คน`;
+                document.getElementById("kpi-htn-count-label").innerText = `${htnCount} / ${total} คน (Stage 1 & 2)`;
 
                 const dmCount = filtered.filter(r => r.fbs >= 100).length;
                 const dmProp = ((dmCount / total) * 100).toFixed(1);
@@ -352,6 +392,7 @@ const totalCount = guardsData.length;
 
             function renderCharts(filtered) {
                 const total = filtered.length;
+
                 const catCounts = {
                     "Low Risk (<10%)": 0,
                     "Intermediate Risk (10-19.9%)": 0,
@@ -370,42 +411,60 @@ const totalCount = guardsData.length;
                     catCounts["High Risk (20-29.9%)"],
                     catCounts["Very High Risk (>=30%)"]
                 ];
+                const catColors = ["#2E7D32", "#E6A23C", "#E65100", "#C62828"];
 
-                Plotly.react('riskDistChart', [{
+                const distData = [{
                     x: catLabels,
                     y: catValues,
                     type: 'bar',
-                    marker: { color: ["#2E7D32", "#E6A23C", "#E65100", "#C62828"], line: { color: '#2A2A2A', width: 2 } },
+                    marker: { color: catColors, line: { color: '#2A2A2A', width: 2 } },
                     text: catValues.map(v => total > 0 ? `${v} (${((v/total)*100).toFixed(1)}%)` : "0"),
-                    textposition: 'auto'
-                }], {
+                    textposition: 'auto',
+                    hoverinfo: 'x+y'
+                }];
+
+                const distLayout = {
                     font: { family: 'Outfit, Inter, sans-serif' },
                     paper_bgcolor: 'transparent',
                     plot_bgcolor: 'transparent',
-                    margin: { t: 30, r: 20, l: 40, b: 60 }
-                }, { responsive: true, displayModeBar: false });
+                    margin: { t: 30, r: 20, l: 40, b: 60 },
+                    yaxis: { title: 'จำนวน (คน)', gridcolor: '#e0ded8' },
+                    xaxis: { tickangle: -10 }
+                };
+                Plotly.react('riskDistChart', distData, distLayout, { responsive: true, displayModeBar: false });
 
-                Plotly.react('scatterChart', [{
+                const scatterData = [{
                     x: filtered.map(r => r.age),
                     y: filtered.map(r => r.sbp),
-                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
+                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>สูบบุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
                     mode: 'markers',
                     type: 'scatter',
                     marker: {
                         size: filtered.map(r => Math.max(10, Math.min(26, getEffectiveRisk(r, currentMode) * 1.2))),
                         color: filtered.map(r => getEffectiveRisk(r, currentMode)),
-                        colorscale: [[0.0, '#2E7D32'], [0.35, '#E6A23C'], [0.7, '#E65100'], [1.0, '#C62828']],
-                        showscale: true,
+                        colorscale: [
+                            [0.0, '#2E7D32'],
+                            [0.2, '#8BC34A'],
+                            [0.4, '#FFEB3B'],
+                            [0.6, '#FF9800'],
+                            [0.8, '#F44336'],
+                            [1.0, '#B71C1C']
+                        ],
+                        colorbar: { title: 'Risk %', thickness: 14, len: 0.8 },
                         line: { color: '#2A2A2A', width: 1.5 }
-                    }
-                }], {
+                    },
+                    hoverinfo: 'text'
+                }];
+
+                const scatterLayout = {
                     font: { family: 'Outfit, Inter, sans-serif' },
                     paper_bgcolor: 'transparent',
                     plot_bgcolor: 'transparent',
-                    margin: { t: 30, r: 20, l: 50, b: 50 },
-                    xaxis: { title: 'อายุ (ปี)' },
-                    yaxis: { title: 'SBP (mmHg)' }
-                }, { responsive: true, displayModeBar: false });
+                    margin: { t: 30, r: 40, l: 50, b: 50 },
+                    xaxis: { title: 'อายุ (ปี)', gridcolor: '#e0ded8' },
+                    yaxis: { title: 'ความดันโลหิตตัวบน SBP (mmHg)', gridcolor: '#e0ded8' }
+                };
+                Plotly.react('scatterChart', scatterData, scatterLayout, { responsive: true, displayModeBar: false });
             }
 
             function renderTable(filtered) {
@@ -413,14 +472,20 @@ const totalCount = guardsData.length;
                 if (!tbody) return;
 
                 const sorted = [...filtered].sort((a, b) => {
-                    let valA = a[sortColumn];
-                    let valB = b[sortColumn];
+                    let valA, valB;
                     if (sortColumn === "thai_cv_risk") {
                         valA = getEffectiveRisk(a, currentMode);
                         valB = getEffectiveRisk(b, currentMode);
+                    } else if (sortColumn === "risk_category") {
+                        valA = getEffectiveRisk(a, currentMode);
+                        valB = getEffectiveRisk(b, currentMode);
+                    } else {
+                        valA = a[sortColumn];
+                        valB = b[sortColumn];
                     }
-                    if (valA === null) return 1;
-                    if (valB === null) return -1;
+
+                    if (valA === null || valA === undefined) return 1;
+                    if (valB === null || valB === undefined) return -1;
                     if (valA < valB) return sortAsc ? -1 : 1;
                     if (valA > valB) return sortAsc ? 1 : -1;
                     return 0;
@@ -442,25 +507,43 @@ const totalCount = guardsData.length;
                         catLabel = "เสี่ยงปานกลาง (10-19.9%)";
                     }
 
+                    const smokeBadge = row.smoking_actual === 1 
+                        ? '<span class="badge badge-smoke">สูบบุหรี่</span>' 
+                        : (row.smoking_survey_found ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                    const alcBadge = row.alcohol_actual === 1 
+                        ? '<span class="badge badge-drink">ดื่มแอลกอฮอล์</span>' 
+                        : (row.smoking_survey_found ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                    let quitDiffHtml = "-";
+                    if (row.smoking_actual === 1 && row.thai_cv_risk_baseline !== null) {
+                        const diff = (row.thai_cv_risk - row.thai_cv_risk_baseline).toFixed(2);
+                        quitDiffHtml = `<span style="color:#00695C; font-weight:bold;">${row.thai_cv_risk_baseline}%</span> <span style="font-size:0.75rem; color:#D84315;">(-${diff}%)</span>`;
+                    } else if (row.smoking_actual === 0) {
+                        quitDiffHtml = `<span style="color:#888; font-size:0.8rem;">ไม่สูบ</span>`;
+                    }
+
                     return `
                         <tr>
                             <td><strong>${row.id}</strong></td>
+                            <td><span class="badge badge-bv">${row.work_post || '-'}</span></td>
                             <td><strong style="color:var(--primary); font-size:1.02rem;">${row.name}</strong></td>
                             <td>${row.age}</td>
+                            <td>${smokeBadge}</td>
+                            <td>${alcBadge}</td>
                             <td>${row.sbp} / ${row.dbp} <span style="font-size:0.78rem; color:#666;">(${row.bp_stage})</span></td>
                             <td>${row.bmi ? row.bmi.toFixed(1) : '-'}</td>
                             <td>${row.fbs} ${row.fbs >= 126 ? '<span style="color:#B71C1C; font-weight:bold;">(DM)</span>' : ''}</td>
                             <td>${row.cholesterol}</td>
-                            <td>${row.hdl}</td>
-                            <td>${row.ldl}</td>
-                            <td><strong style="font-size:1.05rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
+                            <td><strong style="font-size:1.1rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
                             <td><span class="badge ${badgeClass}">${catLabel}</span></td>
+                            <td>${quitDiffHtml}</td>
                         </tr>
                     `;
                 }).join("");
             }
 
-            function refresh() {
+            function refreshDashboard() {
                 const filtered = filterData();
                 updateKPIs(filtered);
                 renderCharts(filtered);
@@ -468,54 +551,82 @@ const totalCount = guardsData.length;
             }
 
             document.addEventListener("DOMContentLoaded", () => {
-                document.querySelectorAll("#mode-tabs .pill").forEach(p => {
-                    p.addEventListener("click", () => {
-                        document.querySelectorAll("#mode-tabs .pill").forEach(x => x.classList.remove("active"));
-                        p.classList.add("active");
-                        currentMode = p.getAttribute("data-mode");
-                        refresh();
-                    });
-                });
-                document.querySelectorAll("#age-tabs .pill").forEach(p => {
-                    p.addEventListener("click", () => {
-                        document.querySelectorAll("#age-tabs .pill").forEach(x => x.classList.remove("active"));
-                        p.classList.add("active");
-                        selectedAge = p.getAttribute("data-age");
-                        refresh();
-                    });
-                });
-                document.querySelectorAll("#risk-tabs .pill").forEach(p => {
-                    p.addEventListener("click", () => {
-                        document.querySelectorAll("#risk-tabs .pill").forEach(x => x.classList.remove("active"));
-                        p.classList.add("active");
-                        selectedRisk = p.getAttribute("data-risk");
-                        refresh();
-                    });
-                });
-                document.querySelectorAll("#bp-tabs .pill").forEach(p => {
-                    p.addEventListener("click", () => {
-                        document.querySelectorAll("#bp-tabs .pill").forEach(x => x.classList.remove("active"));
-                        p.classList.add("active");
-                        selectedBP = p.getAttribute("data-bp");
-                        refresh();
+                document.querySelectorAll("#mode-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#mode-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        currentMode = pill.getAttribute("data-mode");
+                        refreshDashboard();
                     });
                 });
 
-                document.getElementById("search-input").addEventListener("input", e => {
-                    searchQuery = e.target.value.trim();
-                    refresh();
+                document.querySelectorAll("#smoke-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#smoke-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedSmoke = pill.getAttribute("data-smoke");
+                        refreshDashboard();
+                    });
                 });
 
-                document.querySelectorAll("#guards-table th[data-sort]").forEach(th => {
+                document.querySelectorAll("#alc-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#alc-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedAlc = pill.getAttribute("data-alc");
+                        refreshDashboard();
+                    });
+                });
+
+                document.querySelectorAll("#age-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#age-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedAge = pill.getAttribute("data-age");
+                        refreshDashboard();
+                    });
+                });
+
+                document.querySelectorAll("#risk-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#risk-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedRisk = pill.getAttribute("data-risk");
+                        refreshDashboard();
+                    });
+                });
+
+                document.querySelectorAll("#bp-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#bp-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedBP = pill.getAttribute("data-bp");
+                        refreshDashboard();
+                    });
+                });
+
+                const searchEl = document.getElementById("search-input");
+                if (searchEl) {
+                    searchEl.addEventListener("input", e => {
+                        searchQuery = e.target.value.trim();
+                        refreshDashboard();
+                    });
+                }
+
+                document.querySelectorAll(".data-table th[data-sort]").forEach(th => {
                     th.addEventListener("click", () => {
                         const col = th.getAttribute("data-sort");
-                        if (sortColumn === col) sortAsc = !sortAsc;
-                        else { sortColumn = col; sortAsc = true; }
-                        refresh();
+                        if (sortColumn === col) {
+                            sortAsc = !sortAsc;
+                        } else {
+                            sortColumn = col;
+                            sortAsc = true;
+                        }
+                        renderTable(filterData());
                     });
                 });
 
-                refresh();
+                refreshDashboard();
             });
         </script>
     </body>

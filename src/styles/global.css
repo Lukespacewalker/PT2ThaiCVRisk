@@ -311,6 +311,36 @@ h1, h2, h3, h4, h5, h6 {
   color: #B71C1C;
 }
 
+.badge-smoke {
+  background: #FFCCBC;
+  color: #D84315;
+  border-color: #D84315;
+}
+
+.badge-nosmoke {
+  background: #E0F2F1;
+  color: #00695C;
+  border-color: #00695C;
+}
+
+.badge-drink {
+  background: #FFF3E0;
+  color: #E65100;
+  border-color: #E65100;
+}
+
+.badge-nodrink {
+  background: #F5F5F5;
+  color: #616161;
+  border-color: #9E9E9E;
+}
+
+.badge-bv {
+  background: #E8EAF6;
+  color: #283593;
+  font-weight: 600;
+}
+
 /* Table */
 .table-wrap {
   overflow-x: auto;
