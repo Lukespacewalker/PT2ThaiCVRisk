@@ -76,27 +76,6 @@ const totalCount = guardsData.length;
             <!-- Filters Section -->
             <div class="filter-section">
                 <div class="filter-row">
-                    <!-- Mode Filter -->
-                    <div class="filter-group">
-                        <div class="filter-title">
-                            โหมดข้อมูลการคำนวณความเสี่ยง
-                        </div>
-                        <div class="pill-list" id="mode-tabs">
-                            <div class="pill active" data-mode="actual">
-                                ข้อมูลจริง (Actual Lifestyle)
-                            </div>
-                            <div class="pill" data-mode="baseline">
-                                สมมติไม่สูบทุกคน (If All Quit)
-                            </div>
-                            <div class="pill" data-mode="smoke_all">
-                                สมมติว่าสูบทุกคน (What-if All Smoke)
-                            </div>
-                            <div class="pill" data-mode="simulated">
-                                จำลองประชากร (Simulated ~35%)
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Smoking Filter -->
                     <div class="filter-group">
                         <div class="filter-title">
@@ -279,7 +258,6 @@ const totalCount = guardsData.length;
         </script>
 
         <script is:inline>
-            let currentMode = "actual"; // Default: Actual lifestyle data!
             let selectedAge = "ALL";
             let selectedRisk = "ALL";
             let selectedBP = "ALL";
@@ -289,30 +267,9 @@ const totalCount = guardsData.length;
             let sortColumn = "id";
             let sortAsc = true;
 
-            function getEffectiveRisk(row, mode) {
-                if (mode === "actual") {
-                    return row.thai_cv_risk;
-                } else if (mode === "baseline") {
-                    return row.thai_cv_risk_baseline;
-                } else if (mode === "smoke_all") {
-                    return row.thai_cv_risk_if_smoke;
-                } else if (mode === "simulated") {
-                    return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
-                }
-                return row.thai_cv_risk;
-            }
-
-            function getEffectiveCategory(risk) {
-                if (risk === null || risk === undefined) return "Unknown";
-                if (risk < 10.0) return "Low Risk (<10%)";
-                if (risk < 20.0) return "Intermediate Risk (10-19.9%)";
-                if (risk < 30.0) return "High Risk (20-29.9%)";
-                return "Very High Risk (>=30%)";
-            }
-
             function filterData() {
                 return window.DASHBOARD_DATA.filter(row => {
-                    const effRisk = getEffectiveRisk(row, currentMode);
+                    const effRisk = row.thai_cv_risk;
 
                     if (selectedAge !== "ALL" && row.age_group !== selectedAge) return false;
 
@@ -357,13 +314,13 @@ const totalCount = guardsData.length;
                     return;
                 }
 
-                const risks = filtered.map(r => getEffectiveRisk(r, currentMode)).filter(v => v !== null).sort((a, b) => a - b);
+                const risks = filtered.map(r => r.thai_cv_risk).filter(v => v !== null).sort((a, b) => a - b);
                 const median = risks.length % 2 === 0
                     ? ((risks[risks.length / 2 - 1] + risks[risks.length / 2]) / 2).toFixed(2)
                     : risks[Math.floor(risks.length / 2)].toFixed(2);
                 document.getElementById("kpi-median").innerText = `${median}%`;
 
-                const highRiskCount = filtered.filter(r => getEffectiveRisk(r, currentMode) >= 10.0).length;
+                const highRiskCount = filtered.filter(r => r.thai_cv_risk >= 10.0).length;
                 const highRiskProp = ((highRiskCount / total) * 100).toFixed(1);
                 document.getElementById("kpi-high-prop").innerText = `${highRiskProp}%`;
                 document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${total} คน`;
@@ -400,7 +357,7 @@ const totalCount = guardsData.length;
                     "Very High Risk (>=30%)": 0
                 };
                 filtered.forEach(r => {
-                    const cat = getEffectiveCategory(getEffectiveRisk(r, currentMode));
+                    const cat = r.risk_category;
                     if (catCounts[cat] !== undefined) catCounts[cat]++;
                 });
 
@@ -436,12 +393,12 @@ const totalCount = guardsData.length;
                 const scatterData = [{
                     x: filtered.map(r => r.age),
                     y: filtered.map(r => r.sbp),
-                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>สูบบุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
+                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>สูบบุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${r.thai_cv_risk}%`),
                     mode: 'markers',
                     type: 'scatter',
                     marker: {
-                        size: filtered.map(r => Math.max(10, Math.min(26, getEffectiveRisk(r, currentMode) * 1.2))),
-                        color: filtered.map(r => getEffectiveRisk(r, currentMode)),
+                        size: filtered.map(r => Math.max(10, Math.min(26, r.thai_cv_risk * 1.2))),
+                        color: filtered.map(r => r.thai_cv_risk),
                         colorscale: [
                             [0.0, '#2E7D32'],
                             [0.2, '#8BC34A'],
@@ -473,12 +430,9 @@ const totalCount = guardsData.length;
 
                 const sorted = [...filtered].sort((a, b) => {
                     let valA, valB;
-                    if (sortColumn === "thai_cv_risk") {
-                        valA = getEffectiveRisk(a, currentMode);
-                        valB = getEffectiveRisk(b, currentMode);
-                    } else if (sortColumn === "risk_category") {
-                        valA = getEffectiveRisk(a, currentMode);
-                        valB = getEffectiveRisk(b, currentMode);
+                    if (sortColumn === "thai_cv_risk" || sortColumn === "risk_category") {
+                        valA = a.thai_cv_risk;
+                        valB = b.thai_cv_risk;
                     } else {
                         valA = a[sortColumn];
                         valB = b[sortColumn];
@@ -492,7 +446,7 @@ const totalCount = guardsData.length;
                 });
 
                 tbody.innerHTML = sorted.map(row => {
-                    const risk = getEffectiveRisk(row, currentMode);
+                    const risk = row.thai_cv_risk;
                     let badgeClass = "badge-low";
                     let catLabel = "เสี่ยงต่ำ (<10%)";
 
@@ -551,15 +505,6 @@ const totalCount = guardsData.length;
             }
 
             document.addEventListener("DOMContentLoaded", () => {
-                document.querySelectorAll("#mode-tabs .pill").forEach(pill => {
-                    pill.addEventListener("click", () => {
-                        document.querySelectorAll("#mode-tabs .pill").forEach(p => p.classList.remove("active"));
-                        pill.classList.add("active");
-                        currentMode = pill.getAttribute("data-mode");
-                        refreshDashboard();
-                    });
-                });
-
                 document.querySelectorAll("#smoke-tabs .pill").forEach(pill => {
                     pill.addEventListener("click", () => {
                         document.querySelectorAll("#smoke-tabs .pill").forEach(p => p.classList.remove("active"));
