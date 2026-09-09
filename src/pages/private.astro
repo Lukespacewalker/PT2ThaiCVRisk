@@ -1,4 +1,6 @@
 ---
+import fs from "node:fs";
+import path from "node:path";
 import "../styles/global.css";
 import publicData from "../data/thai_cv_data.json";
 
@@ -10,13 +12,13 @@ if (isCloudflare) {
 
 // Conditionally load private data if present locally on this machine
 let guardsData = publicData;
-try {
-    const privateModule = await import("../data/thai_cv_data_private.json");
-    if (privateModule && privateModule.default) {
-        guardsData = privateModule.default;
+const privateFilePath = path.resolve("./src/data/thai_cv_data_private.json");
+if (fs.existsSync(privateFilePath)) {
+    try {
+        guardsData = JSON.parse(fs.readFileSync(privateFilePath, "utf-8"));
+    } catch (e) {
+        guardsData = publicData;
     }
-} catch (e) {
-    guardsData = publicData;
 }
 
 const totalCount = guardsData.length;
