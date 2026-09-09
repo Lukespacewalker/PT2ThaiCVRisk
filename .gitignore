@@ -11,6 +11,12 @@ bun.lock
 __pycache__/
 *.pyc
 
+# Private data & reports (local only, do NOT commit to public repo)
+src/data/thai_cv_data_private.json
+reports/
+data/*.xlsx
+data/*.pdf
+
 # Environment & OS
 .DS_Store
 Thumbs.db
