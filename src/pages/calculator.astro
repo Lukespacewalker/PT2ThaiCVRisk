@@ -101,6 +101,19 @@ import "../styles/global.css";
                 border: 2px solid white;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
+            .validity-note {
+                display: none;
+                margin: 0.75rem auto 0;
+                width: fit-content;
+                max-width: 100%;
+                padding: 0.4rem 0.7rem;
+                border: 1px solid #8a4b08;
+                border-radius: 999px;
+                background: #fff3cd;
+                color: #6b3906;
+                font-size: 0.8rem;
+                font-weight: 700;
+            }
             .risk-meter {
                 height: 16px;
                 background: #e0ded8;
@@ -239,6 +252,7 @@ import "../styles/global.css";
                         </div>
                         <div class="result-value" id="result-value">0.0%</div>
                         <div class="result-badge" id="result-badge">เสี่ยงต่ำ (&lt;10%)</div>
+                        <div class="validity-note" id="validity-note"></div>
 
                         <div class="risk-meter">
                             <div class="risk-meter-fill" id="meter-fill"></div>
@@ -273,7 +287,13 @@ import "../styles/global.css";
             </div>
         </div>
 
-        <script is:inline>
+        <script>
+            import {
+                calcThaiRisk,
+                formatExtrapolationLabel,
+                getExtrapolationReasons,
+            } from "../lib/thai-cv-risk.js";
+
             const I18N_CALC = {
                 th: {
                     calcTitle: "ประเมินความเสี่ยงโรคหัวใจและหลอดเลือดด้วยตนเอง",
@@ -335,12 +355,6 @@ import "../styles/global.css";
 
             let calcLang = "th";
 
-            function calcThaiRisk(age, sex, sbp, dm, chol, smoking) {
-                const fullScore = (0.08183 * age) + (0.39499 * sex) + (0.02084 * sbp) + (0.69974 * dm) + (0.00212 * chol) + (0.41916 * smoking);
-                const risk = (1.0 - Math.pow(0.978296, Math.exp(fullScore - 7.04423))) * 100.0;
-                return Math.max(0.0, Math.min(100.0, risk));
-            }
-
             function updateCalculator() {
                 const sex = parseInt(document.getElementById("input-sex").value, 10);
                 const age = parseFloat(document.getElementById("input-age").value) || 40;
@@ -351,8 +365,18 @@ import "../styles/global.css";
 
                 const risk = calcThaiRisk(age, sex, sbp, dm, chol, smoke);
                 const riskFormatted = risk.toFixed(2);
+                const extrapolationReasons = getExtrapolationReasons(age, sbp, chol);
 
                 document.getElementById("result-value").innerText = `${riskFormatted}%`;
+
+                const validityNote = document.getElementById("validity-note");
+                if (extrapolationReasons.length > 0) {
+                    validityNote.innerText = formatExtrapolationLabel(extrapolationReasons, calcLang);
+                    validityNote.style.display = "block";
+                } else {
+                    validityNote.innerText = "";
+                    validityNote.style.display = "none";
+                }
 
                 // Badge & Advice
                 const badgeEl = document.getElementById("result-badge");

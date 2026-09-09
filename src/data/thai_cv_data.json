@@ -55,6 +55,9 @@
     "thai_cv_risk_sim_ci_lower": 20.24,
     "thai_cv_risk_sim_ci_upper": 29.1,
     "risk_category_sim": "High Risk (20-29.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 01"
   },
   {
@@ -113,6 +116,9 @@
     "thai_cv_risk_sim_ci_lower": 5.83,
     "thai_cv_risk_sim_ci_upper": 8.74,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 02"
   },
   {
@@ -171,6 +177,9 @@
     "thai_cv_risk_sim_ci_lower": 6.89,
     "thai_cv_risk_sim_ci_upper": 10.29,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 03"
   },
   {
@@ -229,6 +238,9 @@
     "thai_cv_risk_sim_ci_lower": 9.66,
     "thai_cv_risk_sim_ci_upper": 14.31,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 04"
   },
   {
@@ -287,6 +299,9 @@
     "thai_cv_risk_sim_ci_lower": 5.94,
     "thai_cv_risk_sim_ci_upper": 8.89,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 05"
   },
   {
@@ -345,6 +360,9 @@
     "thai_cv_risk_sim_ci_lower": 6.02,
     "thai_cv_risk_sim_ci_upper": 9.01,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 06"
   },
   {
@@ -390,12 +408,12 @@
     "audiogram": "การได้ยินของหูขวาผิดปกติที่ความถี่สูง",
     "spirometry": "ปกติ",
     "smoking_survey_found": false,
-    "smoking_actual": 0,
-    "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-    "alcohol_actual": 0,
+    "smoking_actual": null,
+    "smoking_status": "ไม่พบข้อมูลประวัติ",
+    "alcohol_actual": null,
     "alcohol_status": "ไม่พบข้อมูลประวัติ",
-    "thai_cv_risk": 2.8,
-    "risk_category": "Low Risk (<10%)",
+    "thai_cv_risk": null,
+    "risk_category": "Unknown",
     "thai_cv_risk_baseline": 2.8,
     "risk_category_baseline": "Low Risk (<10%)",
     "thai_cv_risk_if_smoke": 4.23,
@@ -403,6 +421,9 @@
     "thai_cv_risk_sim_ci_lower": 2.8,
     "thai_cv_risk_sim_ci_upper": 4.23,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Unknown smoking status",
     "name": "เจ้าหน้าที่ รปภ. 07"
   },
   {
@@ -461,6 +482,9 @@
     "thai_cv_risk_sim_ci_lower": 6.08,
     "thai_cv_risk_sim_ci_upper": 9.1,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 08"
   },
   {
@@ -519,6 +543,11 @@
     "thai_cv_risk_sim_ci_lower": 1.98,
     "thai_cv_risk_sim_ci_upper": 2.99,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 09"
   },
   {
@@ -564,12 +593,12 @@
     "audiogram": "การได้ยินของหูทั้งสองข้างอยู่ในเกณฑ์ปกติ",
     "spirometry": "ปกติ",
     "smoking_survey_found": false,
-    "smoking_actual": 0,
-    "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-    "alcohol_actual": 0,
+    "smoking_actual": null,
+    "smoking_status": "ไม่พบข้อมูลประวัติ",
+    "alcohol_actual": null,
     "alcohol_status": "ไม่พบข้อมูลประวัติ",
-    "thai_cv_risk": 1.45,
-    "risk_category": "Low Risk (<10%)",
+    "thai_cv_risk": null,
+    "risk_category": "Unknown",
     "thai_cv_risk_baseline": 1.45,
     "risk_category_baseline": "Low Risk (<10%)",
     "thai_cv_risk_if_smoke": 2.2,
@@ -577,6 +606,9 @@
     "thai_cv_risk_sim_ci_lower": 1.45,
     "thai_cv_risk_sim_ci_upper": 2.2,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Unknown smoking status",
     "name": "เจ้าหน้าที่ รปภ. 10"
   },
   {
@@ -635,6 +667,9 @@
     "thai_cv_risk_sim_ci_lower": 8.12,
     "thai_cv_risk_sim_ci_upper": 12.08,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 11"
   },
   {
@@ -693,6 +728,9 @@
     "thai_cv_risk_sim_ci_lower": 7.75,
     "thai_cv_risk_sim_ci_upper": 11.55,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 12"
   },
   {
@@ -751,6 +789,9 @@
     "thai_cv_risk_sim_ci_lower": 10.42,
     "thai_cv_risk_sim_ci_upper": 15.41,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 13"
   },
   {
@@ -809,6 +850,11 @@
     "thai_cv_risk_sim_ci_lower": 9.01,
     "thai_cv_risk_sim_ci_upper": 13.38,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 14"
   },
   {
@@ -867,6 +913,11 @@
     "thai_cv_risk_sim_ci_lower": 27.27,
     "thai_cv_risk_sim_ci_upper": 38.38,
     "risk_category_sim": "High Risk (20-29.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "sbp"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 15"
   },
   {
@@ -925,6 +976,9 @@
     "thai_cv_risk_sim_ci_lower": 15.02,
     "thai_cv_risk_sim_ci_upper": 21.92,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 16"
   },
   {
@@ -970,12 +1024,12 @@
     "audiogram": "",
     "spirometry": "",
     "smoking_survey_found": false,
-    "smoking_actual": 0,
-    "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-    "alcohol_actual": 0,
+    "smoking_actual": null,
+    "smoking_status": "ไม่พบข้อมูลประวัติ",
+    "alcohol_actual": null,
     "alcohol_status": "ไม่พบข้อมูลประวัติ",
-    "thai_cv_risk": 2.61,
-    "risk_category": "Low Risk (<10%)",
+    "thai_cv_risk": null,
+    "risk_category": "Unknown",
     "thai_cv_risk_baseline": 2.61,
     "risk_category_baseline": "Low Risk (<10%)",
     "thai_cv_risk_if_smoke": 3.95,
@@ -983,6 +1037,9 @@
     "thai_cv_risk_sim_ci_lower": 2.61,
     "thai_cv_risk_sim_ci_upper": 3.95,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Unknown smoking status",
     "name": "เจ้าหน้าที่ รปภ. 17"
   },
   {
@@ -1041,6 +1098,9 @@
     "thai_cv_risk_sim_ci_lower": 6.31,
     "thai_cv_risk_sim_ci_upper": 9.44,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 18"
   },
   {
@@ -1099,6 +1159,9 @@
     "thai_cv_risk_sim_ci_lower": 4.12,
     "thai_cv_risk_sim_ci_upper": 6.2,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 19"
   },
   {
@@ -1157,6 +1220,11 @@
     "thai_cv_risk_sim_ci_lower": 20.86,
     "thai_cv_risk_sim_ci_upper": 29.93,
     "risk_category_sim": "High Risk (20-29.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 20"
   },
   {
@@ -1215,6 +1283,9 @@
     "thai_cv_risk_sim_ci_lower": 4.9,
     "thai_cv_risk_sim_ci_upper": 7.36,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 21"
   },
   {
@@ -1273,6 +1344,9 @@
     "thai_cv_risk_sim_ci_lower": 11.12,
     "thai_cv_risk_sim_ci_upper": 16.4,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 22"
   },
   {
@@ -1331,6 +1405,9 @@
     "thai_cv_risk_sim_ci_lower": 6.77,
     "thai_cv_risk_sim_ci_upper": 10.11,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 23"
   },
   {
@@ -1376,12 +1453,12 @@
     "audiogram": "",
     "spirometry": "",
     "smoking_survey_found": false,
-    "smoking_actual": 0,
-    "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-    "alcohol_actual": 0,
+    "smoking_actual": null,
+    "smoking_status": "ไม่พบข้อมูลประวัติ",
+    "alcohol_actual": null,
     "alcohol_status": "ไม่พบข้อมูลประวัติ",
-    "thai_cv_risk": 9.59,
-    "risk_category": "Low Risk (<10%)",
+    "thai_cv_risk": null,
+    "risk_category": "Unknown",
     "thai_cv_risk_baseline": 9.59,
     "risk_category_baseline": "Low Risk (<10%)",
     "thai_cv_risk_if_smoke": 14.22,
@@ -1389,6 +1466,9 @@
     "thai_cv_risk_sim_ci_lower": 9.59,
     "thai_cv_risk_sim_ci_upper": 14.22,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Unknown smoking status",
     "name": "เจ้าหน้าที่ รปภ. 24"
   },
   {
@@ -1447,6 +1527,9 @@
     "thai_cv_risk_sim_ci_lower": 1.26,
     "thai_cv_risk_sim_ci_upper": 1.92,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 25"
   },
   {
@@ -1505,6 +1588,9 @@
     "thai_cv_risk_sim_ci_lower": 7.43,
     "thai_cv_risk_sim_ci_upper": 11.08,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 26"
   },
   {
@@ -1563,6 +1649,9 @@
     "thai_cv_risk_sim_ci_lower": 6.26,
     "thai_cv_risk_sim_ci_upper": 9.36,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 27"
   },
   {
@@ -1621,6 +1710,11 @@
     "thai_cv_risk_sim_ci_lower": 3.08,
     "thai_cv_risk_sim_ci_upper": 4.64,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 28"
   },
   {
@@ -1679,6 +1773,9 @@
     "thai_cv_risk_sim_ci_lower": 6.75,
     "thai_cv_risk_sim_ci_upper": 10.09,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 29"
   },
   {
@@ -1737,6 +1834,9 @@
     "thai_cv_risk_sim_ci_lower": 13.58,
     "thai_cv_risk_sim_ci_upper": 19.9,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 30"
   },
   {
@@ -1795,6 +1895,9 @@
     "thai_cv_risk_sim_ci_lower": 3.3,
     "thai_cv_risk_sim_ci_upper": 4.98,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 31"
   },
   {
@@ -1853,6 +1956,9 @@
     "thai_cv_risk_sim_ci_lower": 13.79,
     "thai_cv_risk_sim_ci_upper": 20.2,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 32"
   },
   {
@@ -1911,6 +2017,9 @@
     "thai_cv_risk_sim_ci_lower": 8.45,
     "thai_cv_risk_sim_ci_upper": 12.56,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 33"
   },
   {
@@ -1969,6 +2078,11 @@
     "thai_cv_risk_sim_ci_lower": 0.5,
     "thai_cv_risk_sim_ci_upper": 0.76,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 34"
   },
   {
@@ -2027,6 +2141,9 @@
     "thai_cv_risk_sim_ci_lower": 6.28,
     "thai_cv_risk_sim_ci_upper": 9.39,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 35"
   },
   {
@@ -2085,6 +2202,9 @@
     "thai_cv_risk_sim_ci_lower": 6.8,
     "thai_cv_risk_sim_ci_upper": 10.15,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 36"
   },
   {
@@ -2143,6 +2263,9 @@
     "thai_cv_risk_sim_ci_lower": 9.92,
     "thai_cv_risk_sim_ci_upper": 14.69,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 37"
   },
   {
@@ -2201,6 +2324,11 @@
     "thai_cv_risk_sim_ci_lower": 0.86,
     "thai_cv_risk_sim_ci_upper": 1.31,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 38"
   },
   {
@@ -2259,6 +2387,11 @@
     "thai_cv_risk_sim_ci_lower": 2.28,
     "thai_cv_risk_sim_ci_upper": 3.44,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 39"
   },
   {
@@ -2317,6 +2450,9 @@
     "thai_cv_risk_sim_ci_lower": 1.83,
     "thai_cv_risk_sim_ci_upper": 2.77,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 40"
   },
   {
@@ -2375,6 +2511,9 @@
     "thai_cv_risk_sim_ci_lower": 15.79,
     "thai_cv_risk_sim_ci_upper": 23.0,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 41"
   },
   {
@@ -2433,6 +2572,11 @@
     "thai_cv_risk_sim_ci_lower": 1.72,
     "thai_cv_risk_sim_ci_upper": 2.6,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 42"
   },
   {
@@ -2491,6 +2635,9 @@
     "thai_cv_risk_sim_ci_lower": 16.53,
     "thai_cv_risk_sim_ci_upper": 24.03,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 43"
   },
   {
@@ -2549,6 +2696,9 @@
     "thai_cv_risk_sim_ci_lower": 13.83,
     "thai_cv_risk_sim_ci_upper": 20.25,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 44"
   },
   {
@@ -2607,6 +2757,9 @@
     "thai_cv_risk_sim_ci_lower": 14.59,
     "thai_cv_risk_sim_ci_upper": 21.32,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 45"
   },
   {
@@ -2665,6 +2818,9 @@
     "thai_cv_risk_sim_ci_lower": 4.55,
     "thai_cv_risk_sim_ci_upper": 6.83,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 46"
   },
   {
@@ -2723,6 +2879,9 @@
     "thai_cv_risk_sim_ci_lower": 3.14,
     "thai_cv_risk_sim_ci_upper": 4.74,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 47"
   },
   {
@@ -2781,6 +2940,11 @@
     "thai_cv_risk_sim_ci_lower": 20.05,
     "thai_cv_risk_sim_ci_upper": 28.84,
     "risk_category_sim": "High Risk (20-29.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 48"
   },
   {
@@ -2839,6 +3003,9 @@
     "thai_cv_risk_sim_ci_lower": 7.0,
     "thai_cv_risk_sim_ci_upper": 10.45,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 49"
   },
   {
@@ -2897,6 +3064,11 @@
     "thai_cv_risk_sim_ci_lower": 14.39,
     "thai_cv_risk_sim_ci_upper": 21.04,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 50"
   },
   {
@@ -2955,6 +3127,9 @@
     "thai_cv_risk_sim_ci_lower": 9.19,
     "thai_cv_risk_sim_ci_upper": 13.64,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 51"
   },
   {
@@ -3013,6 +3188,9 @@
     "thai_cv_risk_sim_ci_lower": 4.63,
     "thai_cv_risk_sim_ci_upper": 6.95,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 52"
   },
   {
@@ -3071,6 +3249,9 @@
     "thai_cv_risk_sim_ci_lower": 10.1,
     "thai_cv_risk_sim_ci_upper": 14.95,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 53"
   },
   {
@@ -3129,6 +3310,9 @@
     "thai_cv_risk_sim_ci_lower": 6.7,
     "thai_cv_risk_sim_ci_upper": 10.01,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 54"
   },
   {
@@ -3187,6 +3371,9 @@
     "thai_cv_risk_sim_ci_lower": 3.21,
     "thai_cv_risk_sim_ci_upper": 4.85,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 55"
   },
   {
@@ -3245,6 +3432,9 @@
     "thai_cv_risk_sim_ci_lower": 2.92,
     "thai_cv_risk_sim_ci_upper": 4.41,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 56"
   },
   {
@@ -3303,6 +3493,9 @@
     "thai_cv_risk_sim_ci_lower": 1.54,
     "thai_cv_risk_sim_ci_upper": 2.34,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 57"
   },
   {
@@ -3361,6 +3554,11 @@
     "thai_cv_risk_sim_ci_lower": 12.09,
     "thai_cv_risk_sim_ci_upper": 17.79,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 58"
   },
   {
@@ -3419,6 +3617,9 @@
     "thai_cv_risk_sim_ci_lower": 5.92,
     "thai_cv_risk_sim_ci_upper": 8.86,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 59"
   },
   {
@@ -3477,6 +3678,11 @@
     "thai_cv_risk_sim_ci_lower": 0.66,
     "thai_cv_risk_sim_ci_upper": 1.01,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 60"
   },
   {
@@ -3535,6 +3741,9 @@
     "thai_cv_risk_sim_ci_lower": 2.34,
     "thai_cv_risk_sim_ci_upper": 3.53,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 61"
   },
   {
@@ -3593,6 +3802,9 @@
     "thai_cv_risk_sim_ci_lower": 9.0,
     "thai_cv_risk_sim_ci_upper": 13.37,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 62"
   },
   {
@@ -3651,6 +3863,9 @@
     "thai_cv_risk_sim_ci_lower": 2.67,
     "thai_cv_risk_sim_ci_upper": 4.02,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 63"
   },
   {
@@ -3709,6 +3924,9 @@
     "thai_cv_risk_sim_ci_lower": 1.2,
     "thai_cv_risk_sim_ci_upper": 1.82,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 64"
   },
   {
@@ -3767,6 +3985,11 @@
     "thai_cv_risk_sim_ci_lower": 14.83,
     "thai_cv_risk_sim_ci_upper": 21.66,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "cholesterol"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 65"
   },
   {
@@ -3825,6 +4048,9 @@
     "thai_cv_risk_sim_ci_lower": 1.17,
     "thai_cv_risk_sim_ci_upper": 1.78,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 66"
   },
   {
@@ -3883,6 +4109,11 @@
     "thai_cv_risk_sim_ci_lower": 0.78,
     "thai_cv_risk_sim_ci_upper": 1.18,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Extrapolated",
     "name": "เจ้าหน้าที่ รปภ. 67"
   },
   {
@@ -3941,6 +4172,9 @@
     "thai_cv_risk_sim_ci_lower": 13.23,
     "thai_cv_risk_sim_ci_upper": 19.41,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 68"
   },
   {
@@ -3999,6 +4233,9 @@
     "thai_cv_risk_sim_ci_lower": 7.45,
     "thai_cv_risk_sim_ci_upper": 11.1,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 69"
   },
   {
@@ -4044,12 +4281,12 @@
     "audiogram": "",
     "spirometry": "",
     "smoking_survey_found": false,
-    "smoking_actual": 0,
-    "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-    "alcohol_actual": 0,
+    "smoking_actual": null,
+    "smoking_status": "ไม่พบข้อมูลประวัติ",
+    "alcohol_actual": null,
     "alcohol_status": "ไม่พบข้อมูลประวัติ",
-    "thai_cv_risk": 2.06,
-    "risk_category": "Low Risk (<10%)",
+    "thai_cv_risk": null,
+    "risk_category": "Unknown",
     "thai_cv_risk_baseline": 2.06,
     "risk_category_baseline": "Low Risk (<10%)",
     "thai_cv_risk_if_smoke": 3.11,
@@ -4057,6 +4294,11 @@
     "thai_cv_risk_sim_ci_lower": 2.06,
     "thai_cv_risk_sim_ci_upper": 3.11,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": true,
+    "risk_extrapolation_reasons": [
+      "age"
+    ],
+    "risk_calculation_status": "Unknown smoking status",
     "name": "เจ้าหน้าที่ รปภ. 70"
   },
   {
@@ -4115,6 +4357,9 @@
     "thai_cv_risk_sim_ci_lower": 4.81,
     "thai_cv_risk_sim_ci_upper": 7.22,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 71"
   },
   {
@@ -4173,6 +4418,9 @@
     "thai_cv_risk_sim_ci_lower": 17.57,
     "thai_cv_risk_sim_ci_upper": 25.46,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 72"
   },
   {
@@ -4231,6 +4479,9 @@
     "thai_cv_risk_sim_ci_lower": 13.02,
     "thai_cv_risk_sim_ci_upper": 19.11,
     "risk_category_sim": "Intermediate Risk (10-19.9%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 73"
   },
   {
@@ -4289,6 +4540,9 @@
     "thai_cv_risk_sim_ci_lower": 7.98,
     "thai_cv_risk_sim_ci_upper": 11.88,
     "risk_category_sim": "Low Risk (<10%)",
+    "risk_is_extrapolated": false,
+    "risk_extrapolation_reasons": [],
+    "risk_calculation_status": "Within model range",
     "name": "เจ้าหน้าที่ รปภ. 74"
   }
 ]

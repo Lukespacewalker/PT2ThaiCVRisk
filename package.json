@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:public": "astro build && npm run verify:public",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "python -m unittest discover -s tests -p \"test_*.py\" && node --test tests/thai-cv-risk.test.mjs",
+    "verify:public": "node scripts/verify-public-build.mjs"
   },
   "dependencies": {
     "astro": "^5.4.2"

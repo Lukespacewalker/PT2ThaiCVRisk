@@ -72,6 +72,8 @@ npm run dev
 ```
 เปิดเบราว์เซอร์ไปที่ `http://localhost:4321`
 
+หน้า `/private` จะปิดไว้โดยค่าเริ่มต้นเพื่อป้องกันรายชื่อจริงหลุดเข้า production build หากต้องการเปิดรายงานภายในเฉพาะเครื่อง ให้ตั้ง `INCLUDE_PRIVATE_REPORT=true` ก่อนรัน dev server
+
 ### 3. รันสคริปต์อัปเดตข้อมูล (หากมีการแก้ไข Excel)
 ```bash
 .\.venv\Scripts\python.exe data/generate_thai_cv_data.py
@@ -87,16 +89,14 @@ npm run dev
 3. เลือก Repository นี้
 4. ตั้งค่า Build settings ดังนี้:
    - **Framework preset**: `Astro`
-   - **Build command**: `bun run build` หรือ `npm run build`
+   - **Build command**: `npm run build:public`
    - **Build output directory**: `dist`
 5. กด **Save and Deploy** ระบบจะ build และเผยแพร่เว็บไซต์ให้ทันที
 
 ### วิธีที่ 2: Direct Upload (ลากโฟลเดอร์ขึ้นโดยตรง)
 1. รันคำสั่งคอมไพล์โปรเจกต์:
    ```bash
-   bun run build
-   # หรือ
-   npm run build
+   npm run build:public
    ```
 2. โฟลเดอร์ `./dist` จะถูกสร้างขึ้นมา
 3. ใน Cloudflare Pages เลือก **Upload Assets** แล้วลากไฟล์/โฟลเดอร์ทั้งหมดข้างใน `./dist` ขึ้นไปได้ทันที

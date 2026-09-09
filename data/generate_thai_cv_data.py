@@ -1,10 +1,16 @@
 import os
 import re
-import math
 import json
 import unicodedata
 import numpy as np
 import pandas as pd
+
+try:
+    from .lifestyle_mapping import parse_lifestyle_checks, unknown_lifestyle
+    from .thai_cv_risk import calc_thai_cv_risk, get_extrapolation_reasons
+except ImportError:
+    from lifestyle_mapping import parse_lifestyle_checks, unknown_lifestyle
+    from thai_cv_risk import calc_thai_cv_risk, get_extrapolation_reasons
 
 def clean_num(val):
     if pd.isna(val):
@@ -28,18 +34,6 @@ def clean_thai_name(n):
     n = re.sub(r'^(นาย|น\.ส\.|นางสาว|นาง|ส\.ต\.|ส\.ต|พลฯ|พล|ด\.ต\.|ร\.ต\.ท\.|ร\.ต\.ต\.)\s*', '', n)
     n = re.sub(r'\s+', '', n)
     return n
-
-def calc_thai_cv_risk(age, sex, sbp, dm, chol, smoking=0):
-    """
-    Ramathibodi / EGAT Thai CV Risk Score equation (with Total Cholesterol):
-    FullScore = 0.08183*Age + 0.39499*Sex + 0.02084*SBP + 0.69974*DM + 0.00212*CHOL + 0.41916*SMOKING
-    Risk(%) = (1 - 0.978296 ^ exp(FullScore - 7.04423)) * 100
-    """
-    if any(v is None or pd.isna(v) for v in [age, sex, sbp, dm, chol]):
-        return None
-    full_score = (0.08183 * age) + (0.39499 * sex) + (0.02084 * sbp) + (0.69974 * dm) + (0.00212 * chol) + (0.41916 * smoking)
-    risk = (1.0 - math.pow(0.978296, math.exp(full_score - 7.04423))) * 100.0
-    return round(max(0.0, risk), 2)
 
 def get_risk_category(risk):
     if risk is None:
@@ -187,6 +181,7 @@ def generate_html_report(records_private, out_html_path):
         .badge-intermediate {{ background: #FFF9C4; color: #F57F17; }}
         .badge-high {{ background: #FFE0B2; color: #E65100; }}
         .badge-veryhigh {{ background: #FFCDD2; color: #B71C1C; }}
+        .badge-extrapolated {{ margin-left: 0.35rem; background: #FFF3CD; color: #6B3906; border-color: #8A4B08; }}
         .badge-smoke {{ background: #FFCCBC; color: #D84315; border: 1px solid #D84315; }}
         .badge-nosmoke {{ background: #E0F2F1; color: #00695C; border: 1px solid #00695C; }}
         .badge-drink {{ background: #FFF3E0; color: #E65100; border: 1px solid #E65100; }}
@@ -341,20 +336,22 @@ def generate_html_report(records_private, out_html_path):
 
             if (total > 0) {{
                 const risks = filtered.map(r => r.thai_cv_risk).filter(x => x !== null).sort((a,b)=>a-b);
-                const med = risks.length % 2 === 0 ? ((risks[risks.length/2 - 1] + risks[risks.length/2])/2).toFixed(2) : risks[Math.floor(risks.length/2)].toFixed(2);
-                document.getElementById("kpi-median").innerText = med + "%";
+                const med = risks.length === 0 ? "-" : (risks.length % 2 === 0 ? ((risks[risks.length/2 - 1] + risks[risks.length/2])/2).toFixed(2) : risks[Math.floor(risks.length/2)].toFixed(2));
+                document.getElementById("kpi-median").innerText = med === "-" ? med : med + "%";
 
-                const highCount = filtered.filter(r => r.thai_cv_risk >= 10).length;
-                document.getElementById("kpi-high-prop").innerText = ((highCount/total)*100).toFixed(1) + "%";
-                document.getElementById("kpi-high-count").innerText = `${{highCount}} จาก ${{total}} คน`;
+                const highCount = risks.filter(risk => risk >= 10).length;
+                document.getElementById("kpi-high-prop").innerText = (risks.length ? ((highCount/risks.length)*100).toFixed(1) : "0.0") + "%";
+                document.getElementById("kpi-high-count").innerText = `${{highCount}} จาก ${{risks.length}} คน`;
 
+                const knownSmoke = filtered.filter(r => r.smoking_actual === 0 || r.smoking_actual === 1);
                 const smokeCount = filtered.filter(r => r.smoking_actual === 1).length;
-                document.getElementById("kpi-smoke-prop").innerText = ((smokeCount/total)*100).toFixed(1) + "%";
-                document.getElementById("kpi-smoke-count").innerText = `${{smokeCount}} จาก ${{total}} คน`;
+                document.getElementById("kpi-smoke-prop").innerText = (knownSmoke.length ? ((smokeCount/knownSmoke.length)*100).toFixed(1) : "0.0") + "%";
+                document.getElementById("kpi-smoke-count").innerText = `${{smokeCount}} จาก ${{knownSmoke.length}} ผู้มีข้อมูล`;
 
+                const knownAlcohol = filtered.filter(r => r.alcohol_actual === 0 || r.alcohol_actual === 1);
                 const alcCount = filtered.filter(r => r.alcohol_actual === 1).length;
-                document.getElementById("kpi-alc-prop").innerText = ((alcCount/total)*100).toFixed(1) + "%";
-                document.getElementById("kpi-alc-count").innerText = `${{alcCount}} จาก ${{total}} คน`;
+                document.getElementById("kpi-alc-prop").innerText = (knownAlcohol.length ? ((alcCount/knownAlcohol.length)*100).toFixed(1) : "0.0") + "%";
+                document.getElementById("kpi-alc-count").innerText = `${{alcCount}} จาก ${{knownAlcohol.length}} ผู้มีข้อมูล`;
 
                 const htnCount = filtered.filter(r => r.sbp >= 140 || r.dbp >= 90).length;
                 document.getElementById("kpi-htn-prop").innerText = ((htnCount/total)*100).toFixed(1) + "%";
@@ -374,17 +371,26 @@ def generate_html_report(records_private, out_html_path):
             const tbody = document.getElementById("table-body");
             tbody.innerHTML = filtered.map(r => {{
                 let badgeClass = "badge-low";
-                if (r.thai_cv_risk >= 30) badgeClass = "badge-veryhigh";
+                if (r.thai_cv_risk === null) badgeClass = "badge-nodrink";
+                else if (r.thai_cv_risk >= 30) badgeClass = "badge-veryhigh";
                 else if (r.thai_cv_risk >= 20) badgeClass = "badge-high";
                 else if (r.thai_cv_risk >= 10) badgeClass = "badge-intermediate";
 
                 const smokeBadge = r.smoking_actual === 1 
                     ? '<span class="badge badge-smoke">สูบบุหรี่</span>' 
-                    : (r.smoking_survey_found ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+                    : (r.smoking_actual === 0 ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
 
                 const alcBadge = r.alcohol_actual === 1 
                     ? '<span class="badge badge-drink">ดื่มแอลกอฮอล์</span>' 
-                    : (r.smoking_survey_found ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+                    : (r.alcohol_actual === 0 ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                const extrapolatedBadge = r.risk_is_extrapolated
+                    ? `<span class="badge badge-extrapolated" title="${{r.risk_extrapolation_reasons.join(', ')}}">Extrapolated</span>`
+                    : "";
+                const riskLabel = r.thai_cv_risk === null ? "คำนวณคะแนนจริงไม่ได้" : r.risk_category;
+                const riskValue = r.thai_cv_risk === null
+                    ? `${{r.thai_cv_risk_baseline.toFixed(2)}}–${{r.thai_cv_risk_if_smoke.toFixed(2)}}%`
+                    : `${{r.thai_cv_risk.toFixed(2)}}%`;
 
                 let quitDiffHtml = "-";
                 if (r.smoking_actual === 1 && r.thai_cv_risk_baseline !== null) {{
@@ -405,8 +411,8 @@ def generate_html_report(records_private, out_html_path):
                     <td>${{r.bmi ? r.bmi.toFixed(1) : '-'}}</td>
                     <td>${{r.fbs}} ${{r.fbs >= 126 ? '<span style="color:#B71C1C; font-weight:bold;">(DM)</span>' : ''}}</td>
                     <td>${{r.cholesterol}}</td>
-                    <td><strong style="color:var(--accent); font-size:1.15rem;">${{r.thai_cv_risk}}%</strong></td>
-                    <td><span class="badge ${{badgeClass}}">${{r.risk_category}}</span></td>
+                    <td><strong style="color:var(--accent); font-size:1.15rem;">${{riskValue}}</strong></td>
+                    <td><span class="badge ${{badgeClass}}">${{riskLabel}}</span> ${{extrapolatedBadge}}</td>
                     <td>${{quitDiffHtml}}</td>
                 </tr>`;
             }}).join("");
@@ -507,22 +513,13 @@ def main():
         orig_name = str(row[2]).strip()
         c_name = clean_thai_name(orig_name)
 
-        c_smoke = pd.notna(row[3]) and "/" in str(row[3])
-        v_smoke = pd.notna(row[7]) and "/" in str(row[7])
-        smoking = 1 if (c_smoke or v_smoke) else 0
-
-        alcohol = 1 if (pd.notna(row[9]) and "/" in str(row[9])) else 0
+        lifestyle = parse_lifestyle_checks(row)
 
         life_dict[c_name] = {
             "life_no": int(no),
             "work_post": bv,
             "life_name": orig_name,
-            "smoking_actual": smoking,
-            "smoking_status": "สูบบุหรี่" if smoking == 1 else "ไม่สูบ",
-            "alcohol_actual": alcohol,
-            "alcohol_status": "ดื่มแอลกอฮอล์" if alcohol == 1 else "ไม่ดื่ม",
-            "c_smoke": c_smoke,
-            "v_smoke": v_smoke,
+            **lifestyle,
             "smoking_survey_found": True,
         }
 
@@ -547,18 +544,7 @@ def main():
             l_info = life_dict[target_name]
             matched_count += 1
         else:
-            l_info = {
-                "life_no": None,
-                "work_post": "ไม่ระบุ",
-                "life_name": None,
-                "smoking_actual": 0,
-                "smoking_status": "ไม่พบข้อมูลประวัติ (คำนวณแบบไม่สูบ)",
-                "alcohol_actual": 0,
-                "alcohol_status": "ไม่พบข้อมูลประวัติ",
-                "c_smoke": False,
-                "v_smoke": False,
-                "smoking_survey_found": False,
-            }
+            l_info = unknown_lifestyle()
 
         age = clean_num(row.get("อายุ"))
         sbp = clean_num(row.get("ความดัน Systolic"))
@@ -604,8 +590,13 @@ def main():
 
         # 1. ACTUAL THAI CV RISK (Using real smoking status!)
         actual_smoking = l_info["smoking_actual"]
-        actual_risk = calc_thai_cv_risk(age, sex, sbp, dm, chol, smoking=actual_smoking)
+        actual_risk = (
+            calc_thai_cv_risk(age, sex, sbp, dm, chol, smoking=actual_smoking)
+            if actual_smoking is not None
+            else None
+        )
         risk_cat = get_risk_category(actual_risk)
+        extrapolation_reasons = get_extrapolation_reasons(age, sbp, chol)
 
         # 2. Baseline Risk (If non-smoker / quit smoking)
         baseline_risk = calc_thai_cv_risk(age, sex, sbp, dm, chol, smoking=0)
@@ -683,6 +674,15 @@ def main():
             "thai_cv_risk_sim_ci_lower": sim_p25,
             "thai_cv_risk_sim_ci_upper": sim_p975,
             "risk_category_sim": sim_risk_cat,
+            "risk_is_extrapolated": bool(extrapolation_reasons),
+            "risk_extrapolation_reasons": extrapolation_reasons,
+            "risk_calculation_status": (
+                "Unknown smoking status"
+                if actual_smoking is None
+                else "Extrapolated"
+                if extrapolation_reasons
+                else "Within model range"
+            ),
         }
 
         # Public: masked name

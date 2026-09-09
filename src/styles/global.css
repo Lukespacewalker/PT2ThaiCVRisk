@@ -323,6 +323,13 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #00695C;
 }
 
+.badge-extrapolated {
+  margin-left: 0.35rem;
+  background: #fff3cd;
+  color: #6b3906;
+  border: 1px solid #8a4b08;
+}
+
 .badge-drink {
   background: #FFF3E0;
   color: #E65100;

@@ -4,7 +4,10 @@ import guardsData from "../data/thai_cv_data.json";
 
 // Initial SSR stats
 const totalCount = guardsData.length;
-const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) / totalCount).toFixed(2);
+const scoredGuards = guardsData.filter((guard) => guard.thai_cv_risk !== null);
+const meanRisk = scoredGuards.length > 0
+    ? (scoredGuards.reduce((acc, guard) => acc + guard.thai_cv_risk, 0) / scoredGuards.length).toFixed(2)
+    : "-";
 ---
 
 <html lang="th" data-lang="th">
@@ -317,7 +320,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 <div class="data-caveat">
                     <strong data-i18n="caveatTitle">ข้อมูลพฤติกรรมการสูบบุหรี่และดื่มสุรา:</strong>
                     <span data-i18n="caveatText">
-                        เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้สำเร็จ 69 จาก 74 นาย คิดเป็น 93.2%) ทำให้การคำนวณ Thai CV Risk สะท้อนความเสี่ยงที่แท้จริงของผู้ปฏิบัติงานแต่ละรายได้อย่างแม่นยำ
+                        เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้ 69 จาก 74 นาย คิดเป็น 93.2%) ผู้ที่ไม่พบแบบสำรวจจะแสดงเป็น “ไม่พบข้อมูล” และไม่นับรวมในอัตราความชุกหรือคะแนนความเสี่ยงจริง
                     </span>
                 </div>
             </div>
@@ -378,12 +381,15 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     equationTitle: "สูตรการคำนวณ (กรณีมีผลโคเลสเตอรอลรวม)",
                     riskThresholdsTitle: "เกณฑ์การจัดกลุ่มความเสี่ยง 10 ปี",
                     caveatTitle: "ข้อมูลพฤติกรรมการสูบบุหรี่และดื่มสุรา:",
-                    caveatText: "เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้สำเร็จ 69 จาก 74 นาย คิดเป็น 93.2%) ทำให้การคำนวณ Thai CV Risk สะท้อนความเสี่ยงที่แท้จริงของผู้ปฏิบัติงานแต่ละรายได้อย่างแม่นยำ",
+                    caveatText: "เชื่อมโยงข้อมูลจากแบบสำรวจพฤติกรรมการสูบบุหรี่และดื่มสุรา กองรักษาความปลอดภัย ปท.2 ประจำปี 2569 โดยตรง (เชื่อมโยงข้อมูลได้ 69 จาก 74 นาย คิดเป็น 93.2%) ผู้ที่ไม่พบแบบสำรวจจะแสดงเป็นไม่พบข้อมูล และไม่นับรวมในอัตราความชุกหรือคะแนนความเสี่ยงจริง",
                     personUnit: "คน",
                     lowRiskLabel: "เสี่ยงต่ำ (<10%)",
                     intRiskLabel: "เสี่ยงปานกลาง (10-19.9%)",
                     highRiskLabel: "เสี่ยงสูง (20-29.9%)",
-                    veryHighRiskLabel: "เสี่ยงสูงมาก (≥30%)"
+                    veryHighRiskLabel: "เสี่ยงสูงมาก (≥30%)",
+                    unknownRiskLabel: "คำนวณคะแนนจริงไม่ได้",
+                    extrapolatedLabel: "Extrapolated",
+                    respondentsUnit: "ผู้มีข้อมูล"
                 },
                 en: {
                     pageTitle: "Cardiovascular Risk Dashboard (Thai CV Risk Score)",
@@ -432,12 +438,15 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     equationTitle: "Score Equation (Total Cholesterol model)",
                     riskThresholdsTitle: "10-Year Risk Stratification Criteria",
                     caveatTitle: "Lifestyle & Smoking Data Integration:",
-                    caveatText: "Directly integrated with the official 2026 lifestyle survey (69 of 74 guards matched, 93.2% match rate), reflecting true individual smoking and alcohol statuses.",
+                    caveatText: "Directly integrated with the official 2026 lifestyle survey (69 of 74 guards matched, 93.2% match rate). Unmatched records remain unknown and are excluded from prevalence and actual-risk calculations.",
                     personUnit: "guards",
                     lowRiskLabel: "Low Risk (<10%)",
                     intRiskLabel: "Intermediate Risk (10-19.9%)",
                     highRiskLabel: "High Risk (20-29.9%)",
-                    veryHighRiskLabel: "Very High Risk (≥30%)"
+                    veryHighRiskLabel: "Very High Risk (≥30%)",
+                    unknownRiskLabel: "Actual score unavailable",
+                    extrapolatedLabel: "Extrapolated",
+                    respondentsUnit: "with survey data"
                 }
             };
 
@@ -461,6 +470,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
 
                     // Risk Filter
                     if (selectedRisk !== "ALL") {
+                        if (effRisk === null) return false;
                         if (selectedRisk === "Low Risk (<10%)" && effRisk >= 10.0) return false;
                         if (selectedRisk === "Intermediate Risk (10-19.9%)" && (effRisk < 10.0 || effRisk >= 20.0)) return false;
                         if (selectedRisk === "High Risk (20-29.9%)" && effRisk < 20.0) return false;
@@ -508,28 +518,33 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 }
 
                 const risks = filtered.map(r => r.thai_cv_risk).filter(v => v !== null).sort((a, b) => a - b);
-                const median = risks.length % 2 === 0
+                const median = risks.length === 0
+                    ? "-"
+                    : risks.length % 2 === 0
                     ? ((risks[risks.length / 2 - 1] + risks[risks.length / 2]) / 2).toFixed(2)
                     : risks[Math.floor(risks.length / 2)].toFixed(2);
-                document.getElementById("kpi-median").innerText = `${median}%`;
+                document.getElementById("kpi-median").innerText = median === "-" ? median : `${median}%`;
 
                 // Intermediate & High Risk (>=10%)
-                const highRiskCount = filtered.filter(r => r.thai_cv_risk >= 10.0).length;
-                const highRiskProp = ((highRiskCount / total) * 100).toFixed(1);
+                const scoredTotal = risks.length;
+                const highRiskCount = risks.filter(risk => risk >= 10.0).length;
+                const highRiskProp = scoredTotal > 0 ? ((highRiskCount / scoredTotal) * 100).toFixed(1) : "0.0";
                 document.getElementById("kpi-high-prop").innerText = `${highRiskProp}%`;
-                document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${total} ${I18N[currentLang].personUnit}`;
+                document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${scoredTotal} ${I18N[currentLang].personUnit}`;
 
                 // Smoking Prevalence
+                const knownSmoke = filtered.filter(r => r.smoking_actual === 0 || r.smoking_actual === 1);
                 const smokeCount = filtered.filter(r => r.smoking_actual === 1).length;
-                const smokeProp = ((smokeCount / total) * 100).toFixed(1);
+                const smokeProp = knownSmoke.length > 0 ? ((smokeCount / knownSmoke.length) * 100).toFixed(1) : "0.0";
                 document.getElementById("kpi-smoke-prop").innerText = `${smokeProp}%`;
-                document.getElementById("kpi-smoke-count-label").innerText = `${smokeCount} / ${total} ${I18N[currentLang].personUnit}`;
+                document.getElementById("kpi-smoke-count-label").innerText = `${smokeCount} / ${knownSmoke.length} ${I18N[currentLang].respondentsUnit}`;
 
                 // Alcohol Prevalence
+                const knownAlcohol = filtered.filter(r => r.alcohol_actual === 0 || r.alcohol_actual === 1);
                 const alcCount = filtered.filter(r => r.alcohol_actual === 1).length;
-                const alcProp = ((alcCount / total) * 100).toFixed(1);
+                const alcProp = knownAlcohol.length > 0 ? ((alcCount / knownAlcohol.length) * 100).toFixed(1) : "0.0";
                 document.getElementById("kpi-alc-prop").innerText = `${alcProp}%`;
-                document.getElementById("kpi-alc-count-label").innerText = `${alcCount} / ${total} ${I18N[currentLang].personUnit}`;
+                document.getElementById("kpi-alc-count-label").innerText = `${alcCount} / ${knownAlcohol.length} ${I18N[currentLang].respondentsUnit}`;
 
                 // Hypertension (SBP >= 140 or DBP >= 90)
                 const htnCount = filtered.filter(r => (r.sbp >= 140 || r.dbp >= 90)).length;
@@ -546,7 +561,8 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
             }
 
             function renderCharts(filtered) {
-                const total = filtered.length;
+                const scored = filtered.filter(r => r.thai_cv_risk !== null);
+                const total = scored.length;
 
                 // 1. Risk Stratification Bar
                 const catCounts = {
@@ -555,7 +571,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     "High Risk (20-29.9%)": 0,
                     "Very High Risk (>=30%)": 0
                 };
-                filtered.forEach(r => {
+                scored.forEach(r => {
                     const cat = r.risk_category;
                     if (catCounts[cat] !== undefined) catCounts[cat]++;
                 });
@@ -596,14 +612,14 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
 
                 // 2. Scatter: Age vs SBP colored by Risk Score
                 const scatterData = [{
-                    x: filtered.map(r => r.age),
-                    y: filtered.map(r => r.sbp),
-                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>บุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${r.thai_cv_risk}%`),
+                    x: scored.map(r => r.age),
+                    y: scored.map(r => r.sbp),
+                    text: scored.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>จุด: ${r.work_post || '-'}<br>บุหรี่: ${r.smoking_status}<br>SBP: ${r.sbp} mmHg<br>Risk: ${r.thai_cv_risk}%${r.risk_is_extrapolated ? '<br>Extrapolated' : ''}`),
                     mode: 'markers',
                     type: 'scatter',
                     marker: {
-                        size: filtered.map(r => Math.max(10, Math.min(26, r.thai_cv_risk * 1.2))),
-                        color: filtered.map(r => r.thai_cv_risk),
+                        size: scored.map(r => Math.max(10, Math.min(26, r.thai_cv_risk * 1.2))),
+                        color: scored.map(r => r.thai_cv_risk),
                         colorscale: [
                             [0.0, '#2E7D32'],
                             [0.2, '#8BC34A'],
@@ -635,7 +651,7 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                 // 3. Box Plot by Age Group
                 const ageGroups = ["<40", "40-49", "50-59"];
                 const boxTraces = ageGroups.map((ag, i) => {
-                    const subset = filtered.filter(r => r.age_group === ag);
+                    const subset = scored.filter(r => r.age_group === ag);
                     return {
                         y: subset.map(r => r.thai_cv_risk),
                         name: ag + (currentLang === 'th' ? ' ปี' : ' yrs'),
@@ -717,7 +733,10 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                     let badgeClass = "badge-low";
                     let catLabel = I18N[currentLang].lowRiskLabel;
 
-                    if (risk >= 30.0) {
+                    if (risk === null) {
+                        badgeClass = "badge-nodrink";
+                        catLabel = I18N[currentLang].unknownRiskLabel;
+                    } else if (risk >= 30.0) {
                         badgeClass = "badge-veryhigh";
                         catLabel = I18N[currentLang].veryHighRiskLabel;
                     } else if (risk >= 20.0) {
@@ -730,11 +749,15 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
 
                     const smokeBadge = row.smoking_actual === 1 
                         ? '<span class="badge badge-smoke">สูบบุหรี่</span>' 
-                        : (row.smoking_survey_found ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+                        : (row.smoking_actual === 0 ? '<span class="badge badge-nosmoke">ไม่สูบ</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
 
                     const alcBadge = row.alcohol_actual === 1 
                         ? '<span class="badge badge-drink">ดื่มแอลกอฮอล์</span>' 
-                        : (row.smoking_survey_found ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+                        : (row.alcohol_actual === 0 ? '<span class="badge badge-nodrink">ไม่ดื่ม</span>' : '<span class="badge badge-nodrink">ไม่พบข้อมูล</span>');
+
+                    const extrapolatedBadge = row.risk_is_extrapolated
+                        ? `<span class="badge badge-extrapolated" title="${row.risk_extrapolation_reasons.join(', ')}">${I18N[currentLang].extrapolatedLabel}</span>`
+                        : "";
 
                     let quitDiffHtml = "-";
                     if (row.smoking_actual === 1 && row.thai_cv_risk_baseline !== null) {
@@ -756,8 +779,8 @@ const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) 
                             <td>${row.bmi ? row.bmi.toFixed(1) : '-'}</td>
                             <td>${row.fbs} ${row.fbs >= 126 ? '<span style="color:#B71C1C; font-weight:bold;">(DM)</span>' : ''}</td>
                             <td>${row.cholesterol}</td>
-                            <td><strong style="font-size:1.1rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
-                            <td><span class="badge ${badgeClass}">${catLabel}</span></td>
+                            <td><strong style="font-size:1.1rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : `${row.thai_cv_risk_baseline.toFixed(2)}–${row.thai_cv_risk_if_smoke.toFixed(2)}%`}</strong></td>
+                            <td><span class="badge ${badgeClass}">${catLabel}</span> ${extrapolatedBadge}</td>
                             <td>${quitDiffHtml}</td>
                         </tr>
                     `;

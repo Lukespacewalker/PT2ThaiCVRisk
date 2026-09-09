@@ -3,8 +3,18 @@ import pandas as pd
 import unicodedata
 import re
 import os
+import sys
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from extraction_pipeline import (
+    AMPHETAMINE_COLUMNS,
+    BLOOD_CHEMISTRY_COLUMNS,
+    CBC_COLUMNS,
+    HEPATITIS_B_COLUMNS,
+    validate_row_width,
+)
 
 pdf_path = "ตรวจสุขภาพ รปภ. ปี 2569.pdf"
 excel_path = "ตรวจสุขภาพ_รปภ_ปี2569_extracted.xlsx"
@@ -60,13 +70,13 @@ sections_config = [
         "name": "CBC",
         "sheet_name": "CBC",
         "pages": [48, 49, 50],
-        "columns": ["ลำดับ", "ชื่อ-สกุล", "อายุ", "Hb", "Hct", "RBC Count", "WBC Count", "PMN/Neu", "Lym", "Mono", "Eos", "Baso", "Platelet Count", "Platelet Smear", "RBC Morphology", "แปลผล CBC", "คำแนะนำ"]
+        "columns": CBC_COLUMNS
     },
     {
         "name": "Blood_Chem_Summary",
         "sheet_name": "Blood_Chem_Summary",
         "pages": [53, 54, 55],
-        "columns": ["ลำดับ", "ชื่อ-สกุล", "อายุ", "FBS", "Cholesterol", "Triglyceride", "SGOT (AST)", "SGPT (ALT)", "Alk Phos", "BUN", "Creatinine", "Uric Acid", "สรุปผล Blood Chem", "คำแนะนำ"]
+        "columns": BLOOD_CHEMISTRY_COLUMNS
     },
     {
         "name": "FBS_Detail",
@@ -96,7 +106,7 @@ sections_config = [
         "name": "Hepatitis_B",
         "sheet_name": "Hepatitis_B",
         "pages": [78, 79, 80],
-        "columns": ["ลำดับ", "ชื่อ-สกุล", "อายุ", "HBsAg", "แปลผล HBsAg", "คำแนะนำ"]
+        "columns": HEPATITIS_B_COLUMNS
     },
     {
         "name": "Urine_Analysis",
@@ -108,7 +118,7 @@ sections_config = [
         "name": "Amphetamine",
         "sheet_name": "Amphetamine_Drug",
         "pages": [87, 88, 89],
-        "columns": ["ลำดับ", "ชื่อ-สกุล", "อายุ", "Amphetamine in Urine", "แปลผล Amphetamine", "คำแนะนำ"]
+        "columns": AMPHETAMINE_COLUMNS
     },
     {
         "name": "Chest_XRay",
@@ -169,10 +179,7 @@ with pdfplumber.open(pdf_path) as pdf:
                     if is_header_row(cleaned):
                         continue
                     if is_data_row(cleaned):
-                        if len(cleaned) > len(expected_cols):
-                            cleaned = cleaned[:len(expected_cols)]
-                        elif len(cleaned) < len(expected_cols):
-                            cleaned = cleaned + [""] * (len(expected_cols) - len(cleaned))
+                        cleaned = validate_row_width(sheet, cleaned, expected_cols)
                         extracted_rows.append(cleaned)
         
         df = pd.DataFrame(extracted_rows, columns=expected_cols)
