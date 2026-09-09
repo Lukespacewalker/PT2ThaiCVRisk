@@ -1,0 +1,17 @@
+# Build
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+bun.lock
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Environment & OS
+.DS_Store
+Thumbs.db
+.vscode/

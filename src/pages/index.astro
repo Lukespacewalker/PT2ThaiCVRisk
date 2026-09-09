@@ -1,0 +1,795 @@
+---
+import "../styles/global.css";
+import guardsData from "../data/thai_cv_data.json";
+
+// Initial SSR stats
+const totalCount = guardsData.length;
+const meanRisk = (guardsData.reduce((acc, d) => acc + (d.thai_cv_risk || 0), 0) / totalCount).toFixed(2);
+---
+
+<html lang="th" data-lang="th">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Thai CV Risk Score Dashboard - กองรักษาความปลอดภัย 2569</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Plotly via CDN for robust responsive charting -->
+        <script is:inline src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-controls">
+                    <a href="/calculator" class="nav-button" id="nav-calc-btn">
+                        <span data-i18n="goToCalculator">ประเมินความเสี่ยงด้วยตนเอง →</span>
+                    </a>
+                    <div class="language-switcher" aria-label="Language selector">
+                        <button class="language-button active" type="button" data-language="th">ไทย</button>
+                        <button class="language-button" type="button" data-language="en">EN</button>
+                    </div>
+                </div>
+                <h1 data-i18n="pageTitle">
+                    แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด (Thai CV Risk Score)
+                </h1>
+                <p class="header-subtitle" data-i18n="pageSubtitle">
+                    ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือดในระยะเวลา 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569
+                </p>
+            </header>
+
+            <!-- Filters Section -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <!-- Mode Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterMode">
+                            โหมดข้อมูลการสูบบุหรี่
+                        </div>
+                        <div class="pill-list" id="mode-tabs">
+                            <div class="pill active" data-mode="baseline" data-i18n="modeBaseline">
+                                ข้อมูลพื้นฐาน (ไม่สูบทุกคน)
+                            </div>
+                            <div class="pill" data-mode="simulated" data-i18n="modeSimulated">
+                                จำลองประชากร (ชายไทย ~35%)
+                            </div>
+                            <div class="pill" data-mode="smoke_all" data-i18n="modeSmokeAll">
+                                สมมติว่าสูบทุกคน (What-if)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Age Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterAge">
+                            ช่วงอายุ
+                        </div>
+                        <div class="pill-list" id="age-tabs">
+                            <div class="pill active" data-age="ALL" data-i18n="all">ทั้งหมด</div>
+                            <div class="pill" data-age="<40">&lt; 40 ปี</div>
+                            <div class="pill" data-age="40-49">40 - 49 ปี</div>
+                            <div class="pill" data-age="50-59">50 - 59 ปี</div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Category Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterRisk">
+                            ระดับความเสี่ยง
+                        </div>
+                        <div class="pill-list" id="risk-tabs">
+                            <div class="pill active" data-risk="ALL" data-i18n="all">ทั้งหมด</div>
+                            <div class="pill" data-risk="Low Risk (<10%)" data-i18n="riskLow">เสี่ยงต่ำ (&lt;10%)</div>
+                            <div class="pill" data-risk="Intermediate Risk (10-19.9%)" data-i18n="riskInt">เสี่ยงปานกลาง (10-19.9%)</div>
+                            <div class="pill" data-risk="High Risk (20-29.9%)" data-i18n="riskHigh">เสี่ยงสูง (&ge;20%)</div>
+                        </div>
+                    </div>
+
+                    <!-- BP Filter -->
+                    <div class="filter-group">
+                        <div class="filter-title" data-i18n="filterBP">
+                            ระดับความดันโลหิต
+                        </div>
+                        <div class="pill-list" id="bp-tabs">
+                            <div class="pill active" data-bp="ALL" data-i18n="all">ทั้งหมด</div>
+                            <div class="pill" data-bp="Normal BP" data-i18n="bpNormal">ความดันปกติ</div>
+                            <div class="pill" data-bp="Prehypertension" data-i18n="bpPre">เสี่ยงสูง (Pre-HTN)</div>
+                            <div class="pill" data-bp="Stage 1 HTN" data-i18n="bpStage1">ความดันสูง ระดับ 1</div>
+                            <div class="pill" data-bp="Stage 2 HTN" data-i18n="bpStage2">ความดันสูง ระดับ 2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Section -->
+            <div class="grid">
+                <!-- Total Assessed -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiTotalTitle">
+                        จำนวนเจ้าหน้าที่ที่ประเมิน
+                    </div>
+                    <div class="kpi-value" id="kpi-total">{totalCount}</div>
+                    <div class="kpi-label" data-i18n="kpiTotalLabel">
+                        เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiTotalNote">
+                        ข้อมูลตรวจสุขภาพประจำปี 2569 ครบถ้วน 100%
+                    </div>
+                </div>
+
+                <!-- Median Thai CV Risk -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiMedianTitle">
+                        มัธยฐานความเสี่ยง (Thai CV Risk)
+                    </div>
+                    <div class="kpi-value" id="kpi-median">0.0%</div>
+                    <div class="kpi-label" data-i18n="kpiMedianLabel">
+                        โอกาสเกิดโรคหัวใจและหลอดเลือดใน 10 ปี
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiMedianNote">
+                        เกณฑ์มาตรฐาน: ต่ำ (&lt;10%), ปานกลาง (10-19%), สูง (&ge;20%)
+                    </div>
+                </div>
+
+                <!-- High & Intermediate Risk Proportion -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiHighTitle">
+                        สัดส่วนกลุ่มเสี่ยงปานกลาง-สูง
+                    </div>
+                    <div class="kpi-value" id="kpi-high-prop">0.0%</div>
+                    <div class="kpi-label" id="kpi-high-count-label">
+                        0 จาก 0 คน
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiHighNote">
+                        กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน
+                    </div>
+                </div>
+
+                <!-- Hypertension Prevalence -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiHTNTitle">
+                        ความดันโลหิตสูง (HTN)
+                    </div>
+                    <div class="kpi-value" id="kpi-htn-prop">0.0%</div>
+                    <div class="kpi-label" id="kpi-htn-count-label">
+                        SBP &ge; 140 หรือ DBP &ge; 90 mmHg
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiHTNNote">
+                        ปัจจัยหลักที่มีน้ำหนักสูงในสมการ Thai CV Risk
+                    </div>
+                </div>
+
+                <!-- Diabetes Prevalence -->
+                <div class="card">
+                    <div class="card-title" data-i18n="kpiDMTitle">
+                        เบาหวานและเสี่ยงเบาหวาน
+                    </div>
+                    <div class="kpi-value" id="kpi-dm-prop">0.0%</div>
+                    <div class="kpi-label" id="kpi-dm-count-label">
+                        FBS &ge; 100 mg/dL (เบาหวาน &ge; 126)
+                    </div>
+                    <div class="threshold-note" data-i18n="kpiDMNote">
+                        ภาวะเบาหวานเพิ่มแต้มความเสี่ยงในสมการ +0.70
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1: Distribution & Scatter -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-title" data-i18n="chartDistTitle">
+                        สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)
+                    </div>
+                    <div class="chart-container" id="riskDistChart" style="height: 420px;"></div>
+                </div>
+
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-title" data-i18n="chartScatterTitle">
+                        ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง
+                    </div>
+                    <div class="chart-container" id="scatterChart" style="height: 420px;"></div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2: Box Plot & Clinical Factors -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-title" data-i18n="chartBoxTitle">
+                        การกระจายตัวของค่าความเสี่ยงจำแนกตามช่วงอายุ
+                    </div>
+                    <div class="chart-container" id="boxPlotChart" style="height: 420px;"></div>
+                </div>
+
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-title" data-i18n="chartFactorsTitle">
+                        สัดส่วนปัจจัยเสี่ยงและโรคร่วมสำคัญ
+                    </div>
+                    <div class="chart-container" id="factorsBarChart" style="height: 420px;"></div>
+                </div>
+            </div>
+
+            <!-- Detailed Table Section -->
+            <div class="card">
+                <div class="card-title">
+                    <span data-i18n="tableTitle">รายชื่อและผลการประเมินรายบุคคล</span>
+                    <input
+                        type="text"
+                        id="search-input"
+                        class="search-input"
+                        placeholder="ค้นหาชื่อหรือลำดับ..."
+                        data-i18n-placeholder="searchPlaceholder"
+                    />
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" id="guards-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ลำดับ ⇅</th>
+                                <th data-sort="name">ชื่อ-สกุล ⇅</th>
+                                <th data-sort="age">อายุ ⇅</th>
+                                <th data-sort="sbp">ความดัน (SBP/DBP) ⇅</th>
+                                <th data-sort="bmi">BMI ⇅</th>
+                                <th data-sort="fbs">น้ำตาล FBS ⇅</th>
+                                <th data-sort="cholesterol">โคเลสเตอรอลรวม ⇅</th>
+                                <th data-sort="hdl">HDL-C ⇅</th>
+                                <th data-sort="ldl">LDL-C ⇅</th>
+                                <th data-sort="thai_cv_risk">Thai CV Risk (%) ⇅</th>
+                                <th data-sort="risk_category">ระดับความเสี่ยง ⇅</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clinical Methodology & Reference Section -->
+            <div class="card methodology-card">
+                <div class="card-title" data-i18n="methodologyTitle">
+                    ระเบียบวิธีวิจัยและสูตรการประเมิน Thai CV Risk Score
+                </div>
+                <div class="methodology-grid">
+                    <div>
+                        <h4 data-i18n="equationTitle">สูตรการคำนวณ (กรณีมีผลโคเลสเตอรอลรวม)</h4>
+                        <p style="font-family: monospace; font-size: 0.9rem; background: #eef2f1; padding: 0.8rem; border-radius: 4px; border: 1px solid var(--accent-light);">
+                            <strong>FullScore</strong> = (0.08183 &times; Age) + (0.39499 &times; Sex) + (0.02084 &times; SBP) + (0.69974 &times; DM) + (0.00212 &times; CHOL) + (0.41916 &times; Smoking)<br/><br/>
+                            <strong>Risk (%)</strong> = [1 - 0.978296<sup>exp(FullScore - 7.04423)</sup>] &times; 100
+                        </p>
+                        <p style="font-size: 0.88rem; color: #555;">
+                            พัฒนาโดย คณะแพทยศาสตร์โรงพยาบาลรามาธิบดี และการไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT Study) ติดตามผลระยะยาวในประชากรไทย
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 data-i18n="riskThresholdsTitle">เกณฑ์การจัดกลุ่มความเสี่ยง 10 ปี</h4>
+                        <ul style="font-size: 0.9rem; line-height: 1.8; padding-left: 1.2rem;">
+                            <li><strong style="color: var(--risk-low);">&lt; 10% (เสี่ยงต่ำ):</strong> ปรับเปลี่ยนพฤติกรรมสุขภาพทั่วไป ตรวจสุขภาพซ้ำทุก 1-3 ปี</li>
+                            <li><strong style="color: var(--risk-intermediate);">10% - 19.9% (เสี่ยงปานกลาง):</strong> ควบคุมอาหาร ออกกำลังกายสม่ำเสมอ พิจารณายาลดไขมันหากมีปัจจัยเสี่ยงอื่น</li>
+                            <li><strong style="color: var(--risk-high);">20% - 29.9% (เสี่ยงสูง):</strong> ควรได้รับคำปรึกษาจากแพทย์ ปรับพฤติกรรมเข้มงวด และพิจารณาเริ่มยา Statin</li>
+                            <li><strong style="color: var(--risk-veryhigh);">&ge; 30% (เสี่ยงสูงมาก):</strong> ความเสี่ยงอันตรายสูง ต้องพบแพทย์เพื่อตรวจคลื่นไฟฟ้าหัวใจและให้การรักษาทันที</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="data-caveat">
+                    <strong data-i18n="caveatTitle">หมายเหตุสำคัญเกี่ยวกับข้อมูลบุหรี่:</strong>
+                    <span data-i18n="caveatText">
+                        ในการคำนวณเบื้องต้น ได้กำหนดให้ตัวแปรการสูบบุหรี่ = 0 (ไม่สูบ) สำหรับทุกคนตามข้อมูลตั้งต้นที่อยู่ระหว่างรอแบบสอบถามพฤติกรรม หากต้องการดูผลกระทบเมื่อมีการสูบบุหรี่ สามารถสลับโหมด "จำลองประชากร" หรือ "สมมติว่าสูบทุกคน" ได้ที่แถบตัวกรองด้านบน
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inline Data Injection & Interactive Dashboard Script -->
+        <script is:inline define:vars={{ rawData: guardsData }}>
+            window.DASHBOARD_DATA = rawData;
+        </script>
+
+        <script is:inline>
+            // Translations Dictionary
+            const I18N = {
+                th: {
+                    pageTitle: "แดชบอร์ดความเสี่ยงโรคหัวใจและหลอดเลือด (Thai CV Risk Score)",
+                    pageSubtitle: "ระบบประเมินความเสี่ยงโรคหัวใจและหลอดเลือดในระยะเวลา 10 ปี (Thai CV Risk Score: Ramathibodi / EGAT) ของเจ้าหน้าที่รักษาความปลอดภัย ประจำปี 2569",
+                    goToCalculator: "ประเมินความเสี่ยงด้วยตนเอง →",
+                    filterMode: "โหมดข้อมูลการสูบบุหรี่",
+                    modeBaseline: "ข้อมูลพื้นฐาน (ไม่สูบทุกคน)",
+                    modeSimulated: "จำลองประชากร (ชายไทย ~35%)",
+                    modeSmokeAll: "สมมติว่าสูบทุกคน (What-if)",
+                    filterAge: "ช่วงอายุ",
+                    all: "ทั้งหมด",
+                    filterRisk: "ระดับความเสี่ยง",
+                    riskLow: "เสี่ยงต่ำ (<10%)",
+                    riskInt: "เสี่ยงปานกลาง (10-19.9%)",
+                    riskHigh: "เสี่ยงสูง (≥20%)",
+                    filterBP: "ระดับความดันโลหิต",
+                    bpNormal: "ความดันปกติ",
+                    bpPre: "เสี่ยงสูง (Pre-HTN)",
+                    bpStage1: "ความดันสูง ระดับ 1",
+                    bpStage2: "ความดันสูง ระดับ 2",
+                    kpiTotalTitle: "จำนวนเจ้าหน้าที่ที่ประเมิน",
+                    kpiTotalLabel: "เจ้าหน้าที่รักษาความปลอดภัย (เพศชาย 100%)",
+                    kpiTotalNote: "ข้อมูลตรวจสุขภาพประจำปี 2569 ครบถ้วน 100%",
+                    kpiMedianTitle: "มัธยฐานความเสี่ยง (Thai CV Risk)",
+                    kpiMedianLabel: "โอกาสเกิดโรคหัวใจและหลอดเลือดใน 10 ปี",
+                    kpiMedianNote: "เกณฑ์มาตรฐาน: ต่ำ (<10%), ปานกลาง (10-19%), สูง (≥20%)",
+                    kpiHighTitle: "สัดส่วนกลุ่มเสี่ยงปานกลาง-สูง",
+                    kpiHighNote: "กลุ่มที่ควรได้รับการติดตามและปรับพฤติกรรมเร่งด่วน",
+                    kpiHTNTitle: "ความดันโลหิตสูง (HTN)",
+                    kpiHTNNote: "ปัจจัยหลักที่มีน้ำหนักสูงในสมการ Thai CV Risk",
+                    kpiDMTitle: "เบาหวานและเสี่ยงเบาหวาน",
+                    kpiDMNote: "ภาวะเบาหวานเพิ่มแต้มความเสี่ยงในสมการ +0.70",
+                    chartDistTitle: "สัดส่วนระดับความเสี่ยง (Thai CV Risk Stratification)",
+                    chartScatterTitle: "ความสัมพันธ์ระหว่างอายุ ความดันโลหิต และคะแนนความเสี่ยง",
+                    chartBoxTitle: "การกระจายตัวของค่าความเสี่ยงจำแนกตามช่วงอายุ",
+                    chartFactorsTitle: "สัดส่วนปัจจัยเสี่ยงและโรคร่วมสำคัญ",
+                    tableTitle: "รายชื่อและผลการประเมินรายบุคคล",
+                    searchPlaceholder: "ค้นหาชื่อหรือลำดับ...",
+                    methodologyTitle: "ระเบียบวิธีวิจัยและสูตรการประเมิน Thai CV Risk Score",
+                    equationTitle: "สูตรการคำนวณ (กรณีมีผลโคเลสเตอรอลรวม)",
+                    riskThresholdsTitle: "เกณฑ์การจัดกลุ่มความเสี่ยง 10 ปี",
+                    caveatTitle: "หมายเหตุสำคัญเกี่ยวกับข้อมูลบุหรี่:",
+                    caveatText: "ในการคำนวณเบื้องต้น ได้กำหนดให้ตัวแปรการสูบบุหรี่ = 0 (ไม่สูบ) สำหรับทุกคนตามข้อมูลตั้งต้นที่อยู่ระหว่างรอแบบสอบถามพฤติกรรม หากต้องการดูผลกระทบเมื่อมีการสูบบุหรี่ สามารถสลับโหมด \"จำลองประชากร\" หรือ \"สมมติว่าสูบทุกคน\" ได้ที่แถบตัวกรองด้านบน",
+                    personUnit: "คน",
+                    lowRiskLabel: "เสี่ยงต่ำ (<10%)",
+                    intRiskLabel: "เสี่ยงปานกลาง (10-19.9%)",
+                    highRiskLabel: "เสี่ยงสูง (20-29.9%)",
+                    veryHighRiskLabel: "เสี่ยงสูงมาก (≥30%)"
+                },
+                en: {
+                    pageTitle: "Cardiovascular Risk Dashboard (Thai CV Risk Score)",
+                    pageSubtitle: "10-Year Cardiovascular Disease Risk Assessment (Thai CV Risk Score: Ramathibodi / EGAT) for Security Personnel (Year 2026)",
+                    goToCalculator: "Self-Assessment Calculator →",
+                    filterMode: "Smoking Status Mode",
+                    modeBaseline: "Baseline (All Non-smokers)",
+                    modeSimulated: "Simulated (Thai Male ~35%)",
+                    modeSmokeAll: "What-If (All Smokers)",
+                    filterAge: "Age Group",
+                    all: "All",
+                    filterRisk: "Risk Category",
+                    riskLow: "Low Risk (<10%)",
+                    riskInt: "Intermediate (10-19.9%)",
+                    riskHigh: "High Risk (≥20%)",
+                    filterBP: "Blood Pressure Stage",
+                    bpNormal: "Normal BP",
+                    bpPre: "Prehypertension",
+                    bpStage1: "Stage 1 HTN",
+                    bpStage2: "Stage 2 HTN",
+                    kpiTotalTitle: "Total Security Personnel",
+                    kpiTotalLabel: "Security Guards (100% Male)",
+                    kpiTotalNote: "Annual Health Checkup 2026 (100% Complete)",
+                    kpiMedianTitle: "Median Thai CV Risk",
+                    kpiMedianLabel: "10-Year CVD Probability",
+                    kpiMedianNote: "Stratum: Low (<10%), Intermediate (10-19%), High (≥20%)",
+                    kpiHighTitle: "Intermediate & High Risk Proportion",
+                    kpiHighNote: "Personnel needing focused lifestyle & clinical follow-up",
+                    kpiHTNTitle: "Hypertension (HTN)",
+                    kpiHTNNote: "Key major contributor in Thai CV Risk Equation",
+                    kpiDMTitle: "Diabetes & Prediabetes",
+                    kpiDMNote: "Diabetes status adds +0.70 log-hazard in equation",
+                    chartDistTitle: "Thai CV Risk Stratification Distribution",
+                    chartScatterTitle: "Relationship: Age, Systolic BP & Cardiovascular Risk",
+                    chartBoxTitle: "Risk Score Distribution Across Age Groups",
+                    chartFactorsTitle: "Prevalence of Clinical Comorbidities",
+                    tableTitle: "Individual Health & Risk Assessment Roster",
+                    searchPlaceholder: "Search name or ID...",
+                    methodologyTitle: "Methodology & Thai CV Risk Score Equation",
+                    equationTitle: "Formula (With Total Cholesterol)",
+                    riskThresholdsTitle: "10-Year Clinical Risk Categories",
+                    caveatTitle: "Important Note on Smoking Status:",
+                    caveatText: "Baseline calculation assumes all personnel are currently non-smokers (Smoking = 0) pending verified behavioural survey data. To explore potential impacts, toggle 'Simulated' or 'What-If' smoking modes above.",
+                    personUnit: "guards",
+                    lowRiskLabel: "Low Risk (<10%)",
+                    intRiskLabel: "Intermediate Risk (10-19.9%)",
+                    highRiskLabel: "High Risk (20-29.9%)",
+                    veryHighRiskLabel: "Very High Risk (≥30%)"
+                }
+            };
+
+            let currentLang = "th";
+            let currentMode = "baseline"; // 'baseline' | 'simulated' | 'smoke_all'
+            let selectedAge = "ALL";
+            let selectedRisk = "ALL";
+            let selectedBP = "ALL";
+            let searchQuery = "";
+            let sortColumn = "id";
+            let sortAsc = true;
+
+            function getEffectiveRisk(row, mode) {
+                if (mode === "simulated") {
+                    return row.thai_cv_risk_sim_med ?? row.thai_cv_risk;
+                } else if (mode === "smoke_all") {
+                    return row.thai_cv_risk_if_smoke ?? row.thai_cv_risk;
+                }
+                return row.thai_cv_risk;
+            }
+
+            function getEffectiveCategory(risk) {
+                if (risk === null || risk === undefined) return "Unknown";
+                if (risk < 10.0) return "Low Risk (<10%)";
+                if (risk < 20.0) return "Intermediate Risk (10-19.9%)";
+                if (risk < 30.0) return "High Risk (20-29.9%)";
+                return "Very High Risk (>=30%)";
+            }
+
+            function filterData() {
+                return window.DASHBOARD_DATA.filter(row => {
+                    const effRisk = getEffectiveRisk(row, currentMode);
+                    const effCat = getEffectiveCategory(effRisk);
+
+                    // Age Filter
+                    if (selectedAge !== "ALL" && row.age_group !== selectedAge) return false;
+
+                    // Risk Filter
+                    if (selectedRisk !== "ALL") {
+                        if (selectedRisk === "Low Risk (<10%)" && effRisk >= 10.0) return false;
+                        if (selectedRisk === "Intermediate Risk (10-19.9%)" && (effRisk < 10.0 || effRisk >= 20.0)) return false;
+                        if (selectedRisk === "High Risk (20-29.9%)" && effRisk < 20.0) return false;
+                    }
+
+                    // BP Filter
+                    if (selectedBP !== "ALL" && row.bp_stage !== selectedBP) return false;
+
+                    // Search Query
+                    if (searchQuery) {
+                        const q = searchQuery.toLowerCase();
+                        const matchName = (row.name || "").toLowerCase().includes(q);
+                        const matchId = String(row.id).includes(q);
+                        if (!matchName && !matchId) return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            function updateKPIs(filtered) {
+                const total = filtered.length;
+                document.getElementById("kpi-total").innerText = total;
+
+                if (total === 0) {
+                    document.getElementById("kpi-median").innerText = "0.0%";
+                    document.getElementById("kpi-high-prop").innerText = "0.0%";
+                    document.getElementById("kpi-high-count-label").innerText = "0 / 0";
+                    document.getElementById("kpi-htn-prop").innerText = "0.0%";
+                    document.getElementById("kpi-htn-count-label").innerText = "0 / 0";
+                    document.getElementById("kpi-dm-prop").innerText = "0.0%";
+                    document.getElementById("kpi-dm-count-label").innerText = "0 / 0";
+                    return;
+                }
+
+                const risks = filtered.map(r => getEffectiveRisk(r, currentMode)).filter(v => v !== null).sort((a, b) => a - b);
+                const median = risks.length % 2 === 0
+                    ? ((risks[risks.length / 2 - 1] + risks[risks.length / 2]) / 2).toFixed(2)
+                    : risks[Math.floor(risks.length / 2)].toFixed(2);
+                document.getElementById("kpi-median").innerText = `${median}%`;
+
+                // Intermediate & High Risk (>=10%)
+                const highRiskCount = filtered.filter(r => getEffectiveRisk(r, currentMode) >= 10.0).length;
+                const highRiskProp = ((highRiskCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-high-prop").innerText = `${highRiskProp}%`;
+                document.getElementById("kpi-high-count-label").innerText = `${highRiskCount} / ${total} ${I18N[currentLang].personUnit}`;
+
+                // Hypertension (SBP >= 140 or DBP >= 90)
+                const htnCount = filtered.filter(r => (r.sbp >= 140 || r.dbp >= 90)).length;
+                const htnProp = ((htnCount / total) * 100).toFixed(1);
+                document.getElementById("kpi-htn-prop").innerText = `${htnProp}%`;
+                document.getElementById("kpi-htn-count-label").innerText = `${htnCount} / ${total} ${I18N[currentLang].personUnit} (Stage 1 & 2)`;
+
+                // DM & Pre-DM (FBS >= 100)
+                const dmCount = filtered.filter(r => r.fbs >= 100).length;
+                const dmProp = ((dmCount / total) * 100).toFixed(1);
+                const actualDmCount = filtered.filter(r => r.fbs >= 126).length;
+                document.getElementById("kpi-dm-prop").innerText = `${dmProp}%`;
+                document.getElementById("kpi-dm-count-label").innerText = `เบาหวาน ${actualDmCount} คน, เสี่ยง ${dmCount - actualDmCount} คน`;
+            }
+
+            function renderCharts(filtered) {
+                const total = filtered.length;
+
+                // 1. Risk Stratification Bar / Donut
+                const catCounts = {
+                    "Low Risk (<10%)": 0,
+                    "Intermediate Risk (10-19.9%)": 0,
+                    "High Risk (20-29.9%)": 0,
+                    "Very High Risk (>=30%)": 0
+                };
+                filtered.forEach(r => {
+                    const cat = getEffectiveCategory(getEffectiveRisk(r, currentMode));
+                    if (catCounts[cat] !== undefined) catCounts[cat]++;
+                });
+
+                const catLabels = [
+                    I18N[currentLang].lowRiskLabel,
+                    I18N[currentLang].intRiskLabel,
+                    I18N[currentLang].highRiskLabel,
+                    I18N[currentLang].veryHighRiskLabel
+                ];
+                const catValues = [
+                    catCounts["Low Risk (<10%)"],
+                    catCounts["Intermediate Risk (10-19.9%)"],
+                    catCounts["High Risk (20-29.9%)"],
+                    catCounts["Very High Risk (>=30%)"]
+                ];
+                const catColors = ["#2E7D32", "#E6A23C", "#E65100", "#C62828"];
+
+                const distData = [{
+                    x: catLabels,
+                    y: catValues,
+                    type: 'bar',
+                    marker: { color: catColors, line: { color: '#2A2A2A', width: 2 } },
+                    text: catValues.map(v => total > 0 ? `${v} (${((v/total)*100).toFixed(1)}%)` : "0"),
+                    textposition: 'auto',
+                    hoverinfo: 'x+y'
+                }];
+
+                const distLayout = {
+                    font: { family: 'Outfit, Inter, sans-serif' },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    margin: { t: 30, r: 20, l: 40, b: 60 },
+                    yaxis: { title: currentLang === 'th' ? 'จำนวน (คน)' : 'Count', gridcolor: '#e0ded8' },
+                    xaxis: { tickangle: -10 }
+                };
+                Plotly.react('riskDistChart', distData, distLayout, { responsive: true, displayModeBar: false });
+
+                // 2. Scatter: Age vs SBP colored by Risk Score
+                const scatterData = [{
+                    x: filtered.map(r => r.age),
+                    y: filtered.map(r => r.sbp),
+                    text: filtered.map(r => `${r.name}<br>อายุ: ${r.age} ปี<br>SBP: ${r.sbp} mmHg<br>Risk: ${getEffectiveRisk(r, currentMode)}%`),
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: {
+                        size: filtered.map(r => Math.max(10, Math.min(26, getEffectiveRisk(r, currentMode) * 1.2))),
+                        color: filtered.map(r => getEffectiveRisk(r, currentMode)),
+                        colorscale: [
+                            [0.0, '#2E7D32'],
+                            [0.35, '#E6A23C'],
+                            [0.7, '#E65100'],
+                            [1.0, '#C62828']
+                        ],
+                        showscale: true,
+                        colorbar: { title: 'Risk %', thickness: 14 },
+                        line: { color: '#2A2A2A', width: 1.5 }
+                    },
+                    hoverinfo: 'text'
+                }];
+
+                const scatterLayout = {
+                    font: { family: 'Outfit, Inter, sans-serif' },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    margin: { t: 30, r: 20, l: 50, b: 50 },
+                    xaxis: { title: currentLang === 'th' ? 'อายุ (ปี)' : 'Age (Years)', gridcolor: '#e0ded8' },
+                    yaxis: { title: currentLang === 'th' ? 'ความดันโลหิตตัวบน SBP (mmHg)' : 'Systolic BP (mmHg)', gridcolor: '#e0ded8' }
+                };
+                Plotly.react('scatterChart', scatterData, scatterLayout, { responsive: true, displayModeBar: false });
+
+                // 3. Box Plot by Age Group
+                const ageGroups = ["<40", "40-49", "50-59"];
+                const boxTraces = ageGroups.map((ag, i) => {
+                    const subset = filtered.filter(r => r.age_group === ag);
+                    return {
+                        y: subset.map(r => getEffectiveRisk(r, currentMode)),
+                        name: ag + (currentLang === 'th' ? ' ปี' : ' yrs'),
+                        type: 'box',
+                        boxpoints: 'all',
+                        jitter: 0.3,
+                        pointpos: -1.8,
+                        marker: { color: ['#2B5953', '#C85A17', '#E3B448'][i % 3], size: 6 }
+                    };
+                });
+
+                const boxLayout = {
+                    font: { family: 'Outfit, Inter, sans-serif' },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    margin: { t: 30, r: 20, l: 40, b: 40 },
+                    yaxis: { title: 'Thai CV Risk (%)', gridcolor: '#e0ded8' },
+                    showlegend: false
+                };
+                Plotly.react('boxPlotChart', boxTraces, boxLayout, { responsive: true, displayModeBar: false });
+
+                // 4. Clinical Comorbidities Horizontal Bar
+                const factors = [
+                    { label: currentLang === 'th' ? 'โคเลสเตอรอลสูง (≥200)' : 'High Chol (≥200)', count: filtered.filter(r => r.cholesterol >= 200).length },
+                    { label: currentLang === 'th' ? 'ความดันสูง (≥140/90)' : 'HTN (≥140/90)', count: filtered.filter(r => r.sbp >= 140 || r.dbp >= 90).length },
+                    { label: currentLang === 'th' ? 'ไตรกลีเซอไรด์สูง (≥150)' : 'High TG (≥150)', count: filtered.filter(r => r.triglyceride >= 150).length },
+                    { label: currentLang === 'th' ? 'น้ำตาลสูง (FBS ≥100)' : 'High FBS (≥100)', count: filtered.filter(r => r.fbs >= 100).length },
+                    { label: currentLang === 'th' ? 'ดัชนีมวลกายเกิน (BMI ≥25)' : 'Obese (BMI ≥25)', count: filtered.filter(r => r.bmi >= 25).length },
+                    { label: currentLang === 'th' ? 'ไขมันดีต่ำ (HDL <40)' : 'Low HDL (<40)', count: filtered.filter(r => r.hdl < 40).length }
+                ].sort((a, b) => a.count - b.count);
+
+                const factorsData = [{
+                    x: factors.map(f => factors.length > 0 && total > 0 ? ((f.count / total) * 100) : 0),
+                    y: factors.map(f => f.label),
+                    type: 'bar',
+                    orientation: 'h',
+                    marker: { color: '#C85A17', line: { color: '#2A2A2A', width: 1.5 } },
+                    text: factors.map(f => total > 0 ? `${f.count} คน (${((f.count / total) * 100).toFixed(0)}%)` : "0"),
+                    textposition: 'auto',
+                    hoverinfo: 'x+y'
+                }];
+
+                const factorsLayout = {
+                    font: { family: 'Outfit, Inter, sans-serif' },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    margin: { t: 30, r: 20, l: 150, b: 40 },
+                    xaxis: { title: '%', range: [0, 100], gridcolor: '#e0ded8' }
+                };
+                Plotly.react('factorsBarChart', factorsData, factorsLayout, { responsive: true, displayModeBar: false });
+            }
+
+            function renderTable(filtered) {
+                const tbody = document.getElementById("table-body");
+                if (!tbody) return;
+
+                // Sort
+                const sorted = [...filtered].sort((a, b) => {
+                    let valA, valB;
+                    if (sortColumn === "thai_cv_risk") {
+                        valA = getEffectiveRisk(a, currentMode);
+                        valB = getEffectiveRisk(b, currentMode);
+                    } else if (sortColumn === "risk_category") {
+                        valA = getEffectiveRisk(a, currentMode);
+                        valB = getEffectiveRisk(b, currentMode);
+                    } else {
+                        valA = a[sortColumn];
+                        valB = b[sortColumn];
+                    }
+
+                    if (valA === null || valA === undefined) return 1;
+                    if (valB === null || valB === undefined) return -1;
+                    if (valA < valB) return sortAsc ? -1 : 1;
+                    if (valA > valB) return sortAsc ? 1 : -1;
+                    return 0;
+                });
+
+                tbody.innerHTML = sorted.map(row => {
+                    const risk = getEffectiveRisk(row, currentMode);
+                    let badgeClass = "badge-low";
+                    let catLabel = I18N[currentLang].lowRiskLabel;
+
+                    if (risk >= 30.0) {
+                        badgeClass = "badge-veryhigh";
+                        catLabel = I18N[currentLang].veryHighRiskLabel;
+                    } else if (risk >= 20.0) {
+                        badgeClass = "badge-high";
+                        catLabel = I18N[currentLang].highRiskLabel;
+                    } else if (risk >= 10.0) {
+                        badgeClass = "badge-intermediate";
+                        catLabel = I18N[currentLang].intRiskLabel;
+                    }
+
+                    return `
+                        <tr>
+                            <td><strong>${row.id}</strong></td>
+                            <td>${row.name}</td>
+                            <td>${row.age}</td>
+                            <td>${row.sbp} / ${row.dbp} <span style="font-size:0.78rem; color:#666;">(${row.bp_stage})</span></td>
+                            <td>${row.bmi ? row.bmi.toFixed(1) : '-'}</td>
+                            <td>${row.fbs} ${row.fbs >= 126 ? '<span style="color:#B71C1C; font-weight:bold;">(DM)</span>' : ''}</td>
+                            <td>${row.cholesterol}</td>
+                            <td>${row.hdl}</td>
+                            <td>${row.ldl}</td>
+                            <td><strong style="font-size:1.05rem; color:var(--accent);">${risk !== null ? risk.toFixed(2) + '%' : '-'}</strong></td>
+                            <td><span class="badge ${badgeClass}">${catLabel}</span></td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+
+            function refreshDashboard() {
+                const filtered = filterData();
+                updateKPIs(filtered);
+                renderCharts(filtered);
+                renderTable(filtered);
+            }
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                document.documentElement.lang = lang;
+                document.documentElement.setAttribute('data-lang', lang);
+
+                // Language Buttons
+                document.querySelectorAll(".language-button").forEach(btn => {
+                    btn.classList.toggle("active", btn.getAttribute("data-language") === lang);
+                });
+
+                // Translate static strings
+                document.querySelectorAll("[data-i18n]").forEach(el => {
+                    const key = el.getAttribute("data-i18n");
+                    if (I18N[lang][key]) el.innerText = I18N[lang][key];
+                });
+
+                // Search placeholder
+                const searchEl = document.getElementById("search-input");
+                if (searchEl) searchEl.placeholder = I18N[lang].searchPlaceholder;
+
+                refreshDashboard();
+            }
+
+            // Event Listeners Setup
+            document.addEventListener("DOMContentLoaded", () => {
+                // Language buttons
+                document.querySelectorAll(".language-button").forEach(btn => {
+                    btn.addEventListener("click", () => setLanguage(btn.getAttribute("data-language")));
+                });
+
+                // Mode Tabs
+                document.querySelectorAll("#mode-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#mode-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        currentMode = pill.getAttribute("data-mode");
+                        refreshDashboard();
+                    });
+                });
+
+                // Age Tabs
+                document.querySelectorAll("#age-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#age-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedAge = pill.getAttribute("data-age");
+                        refreshDashboard();
+                    });
+                });
+
+                // Risk Tabs
+                document.querySelectorAll("#risk-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#risk-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedRisk = pill.getAttribute("data-risk");
+                        refreshDashboard();
+                    });
+                });
+
+                // BP Tabs
+                document.querySelectorAll("#bp-tabs .pill").forEach(pill => {
+                    pill.addEventListener("click", () => {
+                        document.querySelectorAll("#bp-tabs .pill").forEach(p => p.classList.remove("active"));
+                        pill.classList.add("active");
+                        selectedBP = pill.getAttribute("data-bp");
+                        refreshDashboard();
+                    });
+                });
+
+                // Search input
+                const searchEl = document.getElementById("search-input");
+                if (searchEl) {
+                    searchEl.addEventListener("input", (e) => {
+                        searchQuery = e.target.value.trim();
+                        refreshDashboard();
+                    });
+                }
+
+                // Table sorting
+                document.querySelectorAll("#guards-table th[data-sort]").forEach(th => {
+                    th.addEventListener("click", () => {
+                        const col = th.getAttribute("data-sort");
+                        if (sortColumn === col) {
+                            sortAsc = !sortAsc;
+                        } else {
+                            sortColumn = col;
+                            sortAsc = true;
+                        }
+                        refreshDashboard();
+                    });
+                });
+
+                // Initial render
+                refreshDashboard();
+            });
+        </script>
+    </body>
+</html>
